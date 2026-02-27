@@ -16,7 +16,6 @@ ________________________________________
 •	当前代码已经包含你的改动（默认端口等）
 2. 构建镜像
 在项目根目录：
-cd "C:\Users\kenyd\OneDrive\OneDrive\Private Company\Presentation\presentation"
 docker build -t presenton:local .
 > 如只想开发用，也可以用 Dockerfile.dev 构建调试镜像，这里给的是最直接的生产风格构建。
 3. 运行容器
@@ -43,7 +42,7 @@ ________________________________________
     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 •	（可选）Node.js 18+（用于 Electron 或旧脚本，单纯 Web 不强制）
 2. 安装后端依赖
-cd "C:\Users\kenyd\OneDrive\OneDrive\Private Company\Presentation\presentation\servers\fastapi"
+软件根目录下cd /presentation/servers/fastapi"
 uv sync
 3. 启动 FastAPI + NiceGUI
 uv run python server.py --port 8000 --reload true
@@ -69,7 +68,7 @@ Electron 现在已经改为只依赖 FastAPI+NiceGUI，不再启动 Next.js。
 •	Node.js 18+ 和 npm
 •	Python 3.11 + uv（用于 Electron 内部 FastAPI）
 2. 安装与环境准备
-cd "C:\Users\kenyd\OneDrive\OneDrive\Private Company\Presentation\presentation\electron"
+cd /presentation/electron"
 # 安装 Electron 依赖
 npm install
 # 为 Electron 所需的 FastAPI 后端和（已不再使用的）Next.js 准备环境

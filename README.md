@@ -8,6 +8,7 @@ Python 原生的 AI 演示文稿生成器，基于 FastAPI + NiceGUI，本地优
 •	桌面端：Electron 只启动 FastAPI，然后加载 http://127.0.0.1:<port>/ui
 •	旧的 Next.js 前端：已从启动路径和 Nginx 中移除，不再使用
 因此，无论是 Docker、本机开发还是 Electron，界面入口都是 NiceGUI。
+
 ________________________________________
 二、Docker 运行（推荐用于一键使用）
 1. 前置条件

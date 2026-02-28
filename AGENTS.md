@@ -28,13 +28,18 @@ APP_DATA_DIRECTORY=/tmp/app_data TEMP_DIRECTORY=/tmp/presenton \
 
 **API docs**: http://localhost:8000/docs
 
-#### Next.js Frontend (port 5000)
-```bash
-cd servers/nextjs
-FASTAPI_URL=http://127.0.0.1:8000 npx next dev -p 5000
-```
+#### NiceGUI Frontend (mounted at /ui)
 
-**UI**: http://localhost:5000 — Shows the Presenton settings/upload page. The Next.js `next.config.mjs` has rewrites that proxy `/api/v1/*` to the FastAPI backend.
+NiceGUI is mounted directly on the FastAPI server — no separate process needed. Access at http://localhost:8000/ui/
+
+**Pages** (10 total, all under /ui):
+- `/` 首页, `/dashboard` 仪表板, `/create` 创建演示, `/outline` 大纲编辑
+- `/viewer` 演示查看, `/images` 图片管理, `/fonts` 字体管理
+- `/templates` 模板管理, `/icons` 图标搜索, `/settings` 系统设置
+
+**Code structure**: `servers/fastapi/nicegui_app/` — modular with `pages/`, `layout.py`, `api_client.py`
+
+**Note**: The legacy Next.js frontend (`servers/nextjs/`) is still in the repo but no longer required.
 
 ### Running Tests
 

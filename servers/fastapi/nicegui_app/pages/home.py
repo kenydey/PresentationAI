@@ -9,7 +9,7 @@ def index_page():
     page_layout("首页")
     with ui.column().classes("items-center w-full pt-12 gap-6"):
         ui.icon("slideshow").classes("text-6xl text-[#6C63FF]")
-        ui.label("Presenton").classes("text-4xl font-bold text-[#6C63FF]")
+        ui.label("Presentation AI").classes("text-4xl font-bold text-[#6C63FF]")
         ui.label("开源 AI 演示文稿生成器 · NiceGUI 前端").classes("text-gray-500 text-lg")
         ui.separator().classes("w-96 my-2")
         with ui.row().classes("gap-4 flex-wrap justify-center"):

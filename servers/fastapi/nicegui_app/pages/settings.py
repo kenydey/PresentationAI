@@ -131,10 +131,12 @@ def settings_page():
             TOOL_CALLS=tool_calls.value, DISABLE_THINKING=disable_think.value,
             EXTENDED_REASONING=extended_reason.value, WEB_GROUNDING=web_ground.value,
         )
-        path = config_path or ""
-        if not path:
-            log.push("USER_CONFIG_PATH 未设置")
+        path = get_user_config_path_env() or ""
+        if not path or not path.strip():
+            log.push("无法确定配置路径，请设置 USER_CONFIG_PATH 或 APP_DATA_DIRECTORY 环境变量")
+            ui.notify('配置路径未设置', type='negative')
             return
+        path = path.strip()
         try:
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w", encoding="utf-8") as f:

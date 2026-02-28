@@ -33,6 +33,8 @@ def get_user_config_path_env():
     if value and isinstance(value, str) and value.strip():
         return value.strip()
     app_data = get_app_data_directory_env()
+    if not app_data or not app_data.strip():
+        app_data = os.path.join(os.getcwd(), "app_data")
     return os.path.join(app_data, "userConfig.json")
 
 

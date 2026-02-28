@@ -16,7 +16,7 @@ NAV_ITEMS = [
 ]
 
 
-def page_layout(title: str = "Presenton"):
+def page_layout(title: str = "Presentation AI"):
     """Call at the top of every page to render the shared header + drawer."""
     ui.colors(primary="#6C63FF")
 
@@ -27,7 +27,7 @@ def page_layout(title: str = "Presenton"):
                 drawer.toggle()
 
             ui.button(icon="menu", on_click=_toggle).props("flat round color=white")
-            ui.label("Presenton").classes("text-xl font-bold text-white tracking-wide")
+            ui.label("Presentation AI").classes("text-xl font-bold text-white tracking-wide")
         ui.label(title).classes("text-white/80 text-sm")
 
     drawer = ui.left_drawer(value=True).classes("bg-gray-50 border-r")

@@ -82,10 +82,12 @@ def create_page():
                     if status == 200 and isinstance(data, list):
                         state["file_paths"].extend(data)
                         log.push(f"✓ 已上传: {e.name} → {data}")
+                        ui.notify(f'{e.name} 上传成功', type='positive')
                         _refresh_file_list()
                     else:
                         detail = data.get("detail", data) if isinstance(data, dict) else data
                         log.push(f"✗ 上传失败 ({e.name}): {detail}")
+                        ui.notify(f'上传失败: {detail}', type='negative')
 
                 ui.upload(
                     on_upload=handle_upload, multiple=True, auto_upload=True
@@ -197,6 +199,7 @@ def create_page():
             if edit_path:
                 log.push(f"  编辑链接: {edit_path}")
             result_label.set_text("演示文稿已生成!")
+            ui.notify('演示文稿生成成功', type='positive')
             if path:
                 base = get_base_url()
                 url = path if path.startswith("http") else base + ("/" if not path.startswith("/") else "") + path
@@ -211,10 +214,12 @@ def create_page():
                 return
             gen_btn.props("disable loading")
             log.push(f"▶ 同步生成中… 模板={payload['template']}  页数={payload['n_slides']}  格式={payload['export_as']}")
+            ui.notify('正在生成演示文稿，请稍候…', type='info')
             try:
                 status, data = await api_post("/api/v1/ppt/presentation/generate", payload)
             except Exception as e:
                 log.push(f"✗ 请求异常: {e}")
+                ui.notify('请求异常', type='negative')
                 gen_btn.props(remove="disable loading")
                 return
             gen_btn.props(remove="disable loading")
@@ -224,6 +229,7 @@ def create_page():
                 if isinstance(detail, list):
                     detail = "; ".join(str(d.get("msg", d)) for d in detail)
                 log.push(f"✗ 生成失败 (HTTP {status}): {detail}")
+                ui.notify(f'生成失败: {detail}', type='negative')
                 result_label.set_text("生成失败，请查看日志")
                 return
             _show_result(data)
@@ -252,6 +258,7 @@ def create_page():
                 if isinstance(detail, list):
                     detail = "; ".join(str(d.get("msg", d)) for d in detail)
                 log.push(f"✗ 提交失败 (HTTP {status}): {detail}")
+                ui.notify(f'提交失败: {detail}', type='negative')
                 return
 
             task_id = data.get("id", "")
@@ -259,6 +266,7 @@ def create_page():
             state["async_task_id"] = task_id
             task_id_input.value = task_id
             log.push(f"✓ 异步任务已提交: id={task_id}  status={task_status}")
+            ui.notify('异步任务已提交', type='positive')
             log.push("  点击「查询异步状态」按钮查看进度，或等待自动完成。")
             result_label.set_text(f"异步任务 {task_id} 已提交")
 
@@ -276,12 +284,14 @@ def create_page():
                 status, data = await api_get(f"/api/v1/ppt/presentation/status/{tid}")
             except Exception as e:
                 log.push(f"✗ 查询异常: {e}")
+                ui.notify('查询异常', type='negative')
                 status_btn.props(remove="disable loading")
                 return
             status_btn.props(remove="disable loading")
 
             if status != 200:
                 log.push(f"✗ 查询失败 (HTTP {status}): {data}")
+                ui.notify('查询失败', type='negative')
                 return
 
             task_status = data.get("status", "")
@@ -295,10 +305,12 @@ def create_page():
                 else:
                     log.push(f"  完成数据: {result_data}")
                 result_label.set_text("异步生成已完成!")
+                ui.notify('异步生成已完成', type='positive')
             elif task_status == "error":
                 error = data.get("error", {})
                 log.push(f"  错误: {error}")
                 result_label.set_text("异步生成出错")
+                ui.notify('异步生成出错', type='negative')
             else:
                 log.push(f"  任务仍在进行中…（可继续点击查询）")
                 result_label.set_text(f"任务进行中: {message}")

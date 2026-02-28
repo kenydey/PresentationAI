@@ -62,6 +62,7 @@ def viewer_page(id: str = ""):
         status, data = await api_get(f"/api/v1/ppt/presentation/{pid}")
         if status != 200:
             log.push(f"加载失败: {data}")
+            ui.notify('加载失败', type='negative')
             return
         slides = data.get("slides", [])
         state["slides"] = slides
@@ -76,6 +77,7 @@ def viewer_page(id: str = ""):
                 ).props("flat dense align=left").classes("w-full text-left")
 
         log.push(f"已加载 {len(slides)} 页幻灯片")
+        ui.notify(f'已加载 {len(slides)} 页幻灯片', type='positive')
         if slides:
             show_slide(0)
 
@@ -133,8 +135,10 @@ def viewer_page(id: str = ""):
         status, data = await api_post("/api/v1/ppt/slide/edit", {"id": sid, "prompt": prompt_text})
         if status != 200:
             log.push(f"编辑失败: {data}")
+            ui.notify('编辑失败', type='negative')
             return
         log.push("编辑成功，重新加载…")
+        ui.notify('编辑成功', type='positive')
         await load_pres()
 
     if id:

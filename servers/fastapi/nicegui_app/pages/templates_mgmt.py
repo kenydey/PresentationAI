@@ -35,6 +35,7 @@ def templates_page():
         status, data = await api_get("/api/v1/ppt/template-management/summary")
         if status != 200:
             log.push(f"加载失败: {data}")
+            ui.notify('加载失败', type='negative')
             return
         total_p = data.get("total_presentations", 0)
         total_l = data.get("total_layouts", 0)
@@ -56,6 +57,7 @@ def templates_page():
                                   on_click=lambda tid=pid: del_template(tid)).props("flat dense color=negative size=sm")
 
         log.push(f"已加载 {len(presentations)} 个模板")
+        ui.notify(f'已加载 {len(presentations)} 个模板', type='positive')
 
     async def load_layouts():
         layout_container.clear()
@@ -66,6 +68,7 @@ def templates_page():
         status, data = await api_get(f"/api/v1/ppt/template-management/get-templates/{pid}")
         if status != 200:
             log.push(f"加载布局失败: {data}")
+            ui.notify('加载布局失败', type='negative')
             return
         layouts = data if isinstance(data, list) else data.get("layouts", []) if isinstance(data, dict) else []
         for idx, layout in enumerate(layouts):
@@ -80,6 +83,7 @@ def templates_page():
         status, _ = await api_delete(f"/api/v1/ppt/template-management/delete-templates/{template_id}")
         if status in (200, 204):
             log.push(f"已删除模板 {template_id}")
+            ui.notify('模板已删除', type='positive')
             await load_summary()
         else:
             log.push(f"删除失败")

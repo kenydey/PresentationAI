@@ -48,6 +48,7 @@ def dashboard_page():
         status, data = await api_get("/api/v1/ppt/presentation/all")
         if status != 200:
             log.push(f"加载失败: {data}")
+            ui.notify('加载失败', type='negative')
             return
         rows = []
         for item in data:
@@ -60,6 +61,7 @@ def dashboard_page():
             })
         table.rows = rows
         log.push(f"已加载 {len(rows)} 个演示文稿")
+        ui.notify(f'已加载 {len(rows)} 个演示文稿', type='positive')
 
     def _open_viewer():
         if state["selected"]:
@@ -76,9 +78,11 @@ def dashboard_page():
         status, data = await api_post("/api/v1/ppt/presentation/export", {"id": pid, "export_as": fmt})
         if status != 200:
             log.push(f"导出失败: {data}")
+            ui.notify('导出失败', type='negative')
             return
         path = data.get("path", "")
         log.push(f"导出成功: {path}")
+        ui.notify('导出成功', type='positive')
         from nicegui_app.api_client import get_base_url
         url = path if path.startswith("http") else get_base_url() + ("/" if not path.startswith("/") else "") + path
         ui.run_javascript(f'window.open("{url}", "_blank")')
@@ -91,8 +95,10 @@ def dashboard_page():
         status, _ = await api_delete(f"/api/v1/ppt/presentation/{pid}")
         if status in (200, 204):
             log.push(f"已删除 {pid}")
+            ui.notify('删除成功', type='positive')
             await load()
         else:
             log.push(f"删除失败")
+            ui.notify('删除失败', type='negative')
 
     ui.timer(0.2, load, once=True)

@@ -144,6 +144,7 @@ def outline_page():
         if status != 200:
             detail = created.get("detail", created) if isinstance(created, dict) else created
             stream_log.push(f"✗ 创建失败 (HTTP {status}): {detail}")
+            ui.notify(f'创建失败: {detail}', type='negative')
             stream_btn.props(remove="disable loading")
             stream_status.set_text("创建失败")
             return
@@ -152,6 +153,7 @@ def outline_page():
         state["pid"] = pid
         pid_label.set_text(str(pid)[:12] + "…")
         stream_log.push(f"✓ 演示已创建 ID = {pid}")
+        ui.notify('演示创建成功', type='positive')
 
         # 2) GET /outlines/stream/{id} (SSE)
         stream_status.set_text("正在流式生成大纲…")
@@ -166,6 +168,7 @@ def outline_page():
                     if resp.status != 200:
                         text = await resp.text()
                         stream_log.push(f"✗ SSE 连接失败 (HTTP {resp.status}): {text[:200]}")
+                        ui.notify('SSE 连接失败', type='negative')
                         stream_btn.props(remove="disable loading")
                         stream_status.set_text("SSE 连接失败")
                         return
@@ -203,6 +206,7 @@ def outline_page():
                             elif evt_type == "error":
                                 detail = data.get("detail", "")
                                 stream_log.push(f"✗ [错误] {detail}")
+                                ui.notify(f'大纲生成出错: {detail}', type='negative')
                                 stream_status.set_text("生成出错")
                                 stream_btn.props(remove="disable loading")
                                 return
@@ -219,12 +223,14 @@ def outline_page():
 
                                 _render_outline_editors(outlines)
                                 stream_log.push(f"✓ 大纲生成完成，共 {len(outlines)} 页")
+                                ui.notify(f'大纲生成完成，共 {len(outlines)} 页', type='positive')
                                 stream_status.set_text(f"大纲完成 ({len(outlines)} 页)")
                                 stream_btn.props(remove="disable loading")
                                 return
 
         except Exception as e:
             stream_log.push(f"✗ SSE 异常: {e}")
+            ui.notify('SSE 连接异常', type='negative')
             stream_status.set_text("SSE 连接异常")
 
         stream_btn.props(remove="disable loading")
@@ -298,11 +304,13 @@ def outline_page():
         if status != 200:
             detail = data.get("detail", data) if isinstance(data, dict) else data
             prepare_log.push(f"✗ 保存失败 (HTTP {status}): {detail}")
+            ui.notify(f'保存失败: {detail}', type='negative')
             prepare_status.set_text("保存失败")
             return
 
         state["presentation_data"] = data
         prepare_log.push("✓ 大纲与布局已保存到后端!")
+        ui.notify('大纲保存成功', type='positive')
         new_title = data.get("title", "")
         if new_title:
             prepare_log.push(f"  标题: {new_title}")
@@ -333,12 +341,14 @@ def outline_page():
         if status != 200:
             detail = data.get("detail", data) if isinstance(data, dict) else data
             prepare_log.push(f"✗ 导出失败 (HTTP {status}): {detail}")
+            ui.notify(f'导出失败: {detail}', type='negative')
             prepare_status.set_text("导出失败")
             return
 
         path = data.get("path", "")
         edit_path = data.get("edit_path", "")
         prepare_log.push(f"✓ 导出成功!")
+        ui.notify('导出成功', type='positive')
         if path:
             prepare_log.push(f"  文件: {path}")
         if edit_path:

@@ -19,7 +19,9 @@ PresentationAI is a Python-native AI presentation generator built on FastAPI + N
   - `DISABLE_IMAGE_GENERATION=true` (unless testing image generation with API keys)
 - **Critical**: The `container_db_url` in `services/database.py` is hardcoded to `/app/container.db`. You must `sudo mkdir -p /app && sudo chmod 777 /app` before running the server.
 - **API docs**: `http://localhost:8000/docs`
-- **UI**: The project uses NiceGUI mounted on FastAPI, but the NiceGUI UI routes are not active in the current upstream code without additional setup. The FastAPI REST API is fully functional.
+- **UI**: The project uses NiceGUI mounted on FastAPI, but NiceGUI UI routes are not present in the current upstream code. The FastAPI REST API is fully functional.
+- **Hello world test**: Use `POST /api/v1/ppt/presentation/create` with `{"content":"test","n_slides":3,"language":"English"}` to create a presentation record, then `GET /api/v1/ppt/presentation/{id}` to retrieve it. The `/all` endpoint requires slides to exist (it does a JOIN), so newly created presentations without LLM-generated slides won't appear there.
+- **PPTX generation** (without LLM): Import `PptxPresentationCreator` from `services.pptx_presentation_creator` with `PptxPresentationModel` from `models.pptx_models` to programmatically create PPTX files. Colors must be 6-hex-digit strings without `#` prefix.
 
 ### Running Tests
 

@@ -66,7 +66,7 @@ def create_page():
                 # ── 文件上传 ──
                 ui.separator().classes("my-2")
                 ui.label("附件文档 (files)").classes("font-semibold mb-1")
-                ui.label("支持 PDF、DOCX、DOC、TXT、PPTX，单文件最大 100MB").classes("text-xs text-gray-400 mb-1")
+                ui.label("支持 PDF、DOCX、DOC、TXT、PPTX、Markdown(.md)，单文件最大 100MB").classes("text-xs text-gray-400 mb-1")
 
                 file_list_container = ui.column().classes("w-full gap-1")
 
@@ -91,7 +91,7 @@ def create_page():
 
                 ui.upload(
                     on_upload=handle_upload, multiple=True, auto_upload=True
-                ).props("accept='.pdf,.docx,.doc,.txt,.pptx' flat bordered").classes("w-full")
+                ).props("accept='.pdf,.docx,.doc,.txt,.pptx,.md' flat bordered").classes("w-full")
 
                 def _refresh_file_list():
                     file_list_container.clear()

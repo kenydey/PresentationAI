@@ -1,5 +1,6 @@
 """PresentationState ↔ Outline/Structure/Slides 映射。"""
 
+import json
 from typing import Any, Dict, List
 
 from models.presentation_outline_model import PresentationOutlineModel, SlideOutlineModel
@@ -23,6 +24,7 @@ def slide_state_to_outline_content(slide_state) -> str:
     """
     将 SlideState 转为 SlideOutlineModel 的 content 字符串。
     get_slide_content_from_type_and_outline 会将该 content 作为 outline 使用。
+    当存在 table_data 或 chart_data 时，以 TABLE_DATA/CHART_DATA 标记注入，供后续解析合并。
     """
     parts = [f"Title: {slide_state.title}"]
     if slide_state.bullet_points:
@@ -31,6 +33,16 @@ def slide_state_to_outline_content(slide_state) -> str:
             parts.append(f"- {bp}")
     if slide_state.image_prompt:
         parts.append(f"Image prompt: {slide_state.image_prompt}")
+    if getattr(slide_state, "table_data", None) and isinstance(slide_state.table_data, dict):
+        try:
+            parts.append(f"TABLE_DATA: {json.dumps(slide_state.table_data, ensure_ascii=False)}")
+        except (TypeError, ValueError):
+            pass
+    if getattr(slide_state, "chart_data", None) and isinstance(slide_state.chart_data, dict):
+        try:
+            parts.append(f"CHART_DATA: {json.dumps(slide_state.chart_data, ensure_ascii=False)}")
+        except (TypeError, ValueError):
+            pass
     return "\n".join(parts)
 
 

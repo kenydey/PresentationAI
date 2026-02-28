@@ -1,6 +1,6 @@
 """PresentationState — 结构化演示状态，供 Research/Design/VibeEditor Agent 使用。"""
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,14 @@ class SlideState(BaseModel):
     )
     layout_id: str = Field(
         description="Tailwind 布局 ID，对应 template_registry 中的 id",
+    )
+    table_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="表格数据：{headers: [...], rows: [[...]]}，数据类幻灯可选填",
+    )
+    chart_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="图表数据：{type: bar|line|pie, categories: [...], series: [{name, data}]}，数据类幻灯可选填",
     )
 
 

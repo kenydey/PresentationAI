@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Annotated, List, Literal, Optional
 from annotated_types import Len
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pptx.util import Pt
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_CONNECTOR_TYPE
@@ -108,7 +108,7 @@ class PptxPictureModel(BaseModel):
 
 
 class PptxShapeModel(BaseModel):
-    shape_type: Literal["textbox", "autoshape", "picture", "connector"]
+    shape_type: Literal["textbox", "autoshape", "picture", "connector", "table", "chart"]
 
 
 class PptxTextBoxModel(PptxShapeModel):
@@ -155,6 +155,30 @@ class PptxConnectorModel(PptxShapeModel):
     opacity: float = 1.0
 
 
+class PptxTableBoxModel(PptxShapeModel):
+    """原生 PowerPoint 表格，导出的 PPT 中可二次编辑。"""
+    shape_type: Literal["table"] = "table"
+    position: PptxPositionModel
+    headers: List[str] = Field(description="表头列")
+    rows: List[List[str]] = Field(description="数据行，每行为字符串列表")
+
+
+class PptxChartSeriesModel(BaseModel):
+    """图表系列数据。"""
+    name: str = ""
+    data: List[float] = Field(default_factory=list)
+
+
+class PptxChartBoxModel(PptxShapeModel):
+    """原生 PowerPoint 图表（柱状/折线/饼图），导出的 PPT 中可二次编辑。"""
+    shape_type: Literal["chart"] = "chart"
+    position: PptxPositionModel
+    chart_type: Literal["bar", "line", "pie"] = "bar"
+    title: Optional[str] = None
+    categories: List[str] = Field(default_factory=list)
+    series: List[PptxChartSeriesModel] = Field(default_factory=list)
+
+
 class PptxSlideModel(BaseModel):
     background: Optional[PptxFillModel] = None
     note: Optional[str] = None
@@ -163,6 +187,8 @@ class PptxSlideModel(BaseModel):
         | PptxAutoShapeBoxModel
         | PptxConnectorModel
         | PptxPictureBoxModel
+        | PptxTableBoxModel
+        | PptxChartBoxModel
     ]
 
 

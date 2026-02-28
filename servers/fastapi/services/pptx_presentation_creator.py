@@ -17,11 +17,14 @@ from pptx.oxml.xmlchemy import OxmlElement
 
 from pptx.util import Pt
 from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.enum.chart import XL_CHART_TYPE
+from pptx.chart.data import ChartData
 from pptx.dml.color import RGBColor
 
 from models.pptx_models import (
     PptxAutoShapeBoxModel,
     PptxBoxShapeEnum,
+    PptxChartBoxModel,
     PptxConnectorModel,
     PptxObjectFitEnum,
     PptxFillModel,
@@ -34,6 +37,7 @@ from models.pptx_models import (
     PptxSlideModel,
     PptxSpacingModel,
     PptxStrokeModel,
+    PptxTableBoxModel,
     PptxTextBoxModel,
     PptxTextRunModel,
 )
@@ -165,6 +169,56 @@ class PptxPresentationCreator:
                 self.add_textbox(slide, shape_model)
             elif model_type is PptxConnectorModel:
                 self.add_connector(slide, shape_model)
+            elif model_type is PptxTableBoxModel:
+                self.add_table(slide, shape_model)
+            elif model_type is PptxChartBoxModel:
+                self.add_chart(slide, shape_model)
+
+    def add_chart(self, slide: Slide, chart_model: PptxChartBoxModel):
+        """插入原生 PowerPoint 图表（柱状/折线/饼图），导出后可在 PPT 中二次编辑。"""
+        chart_type_map = {
+            "bar": XL_CHART_TYPE.COLUMN_CLUSTERED,
+            "line": XL_CHART_TYPE.LINE,
+            "pie": XL_CHART_TYPE.PIE,
+        }
+        xl_type = chart_type_map.get(chart_model.chart_type, XL_CHART_TYPE.COLUMN_CLUSTERED)
+        categories = chart_model.categories or []
+        series_list = chart_model.series or []
+        if not categories and not series_list:
+            return
+        chart_data = ChartData()
+        chart_data.categories = categories
+        for s in series_list:
+            chart_data.add_series(s.name or "", s.data or [])
+        try:
+            slide.shapes.add_chart(
+                xl_type, *chart_model.position.to_pt_list(), chart_data
+            )
+        except Exception as e:
+            print(f"Could not add chart: {e}")
+
+    def add_table(self, slide: Slide, table_model: PptxTableBoxModel):
+        """插入原生 PowerPoint 表格，导出后可在 PPT 中二次编辑。"""
+        headers = table_model.headers or []
+        rows = table_model.rows or []
+        n_rows = 1 + len(rows)
+        n_cols = max(len(headers), 1)
+        if not headers and rows:
+            n_cols = max(len(r) for r in rows) if rows else 1
+        n_cols = max(n_cols, 1)
+        n_rows = max(n_rows, 1)
+
+        pos = table_model.position
+        shape = slide.shapes.add_table(
+            n_rows, n_cols,
+            Pt(pos.left), Pt(pos.top), Pt(pos.width), Pt(pos.height)
+        )
+        table = shape.table
+        for c, h in enumerate(headers[:n_cols]):
+            table.cell(0, c).text = str(h)
+        for r, row in enumerate(rows):
+            for c, cell_text in enumerate(row[:n_cols]):
+                table.cell(r + 1, c).text = str(cell_text)
 
     def add_connector(self, slide: Slide, connector_model: PptxConnectorModel):
         if connector_model.thickness == 0:

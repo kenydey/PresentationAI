@@ -52,6 +52,8 @@ class DocumentsLoader:
             imgs = []
 
             mime_type = mimetypes.guess_type(file_path)[0]
+            if mime_type is None and file_path.lower().endswith(".md"):
+                mime_type = "text/markdown"
             if mime_type in PDF_MIME_TYPES:
                 document, imgs = await self.load_pdf(
                     file_path, load_text, load_images, temp_dir

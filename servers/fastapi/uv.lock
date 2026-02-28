@@ -2121,6 +2121,7 @@ dependencies = [
     { name = "aiosqlite" },
     { name = "anthropic" },
     { name = "asyncpg" },
+    { name = "bcrypt" },
     { name = "chromadb" },
     { name = "dirtyjson" },
     { name = "docling" },
@@ -2133,6 +2134,7 @@ dependencies = [
     { name = "openai" },
     { name = "pathvalidate" },
     { name = "pdfplumber" },
+    { name = "pyjwt" },
     { name = "pytest" },
     { name = "python-pptx" },
     { name = "redis" },
@@ -2151,6 +2153,7 @@ requires-dist = [
     { name = "aiosqlite", specifier = ">=0.21.0" },
     { name = "anthropic", specifier = ">=0.60.0" },
     { name = "asyncpg", specifier = ">=0.30.0" },
+    { name = "bcrypt", specifier = ">=4.3.0" },
     { name = "chromadb", specifier = ">=1.0.15" },
     { name = "dirtyjson", specifier = ">=1.0.8" },
     { name = "docling", specifier = ">=2.43.0" },
@@ -2164,6 +2167,7 @@ requires-dist = [
     { name = "pathvalidate", specifier = ">=3.3.1" },
     { name = "pdfplumber", specifier = ">=0.11.7" },
     { name = "pygraphviz", marker = "extra == 'graphviz'", specifier = ">=1.11" },
+    { name = "pyjwt", specifier = ">=2.11.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "python-pptx", specifier = ">=1.0.2" },
     { name = "redis", specifier = ">=6.2.0" },
@@ -2389,6 +2393,15 @@ name = "pygraphviz"
 version = "1.14"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/66/ca/823d5c74a73d6b8b08e1f5aea12468ef334f0732c65cbb18df2a7f285c87/pygraphviz-1.14.tar.gz", hash = "sha256:c10df02377f4e39b00ae17c862f4ee7e5767317f1c6b2dfd04cea6acc7fc2bea", size = 106003, upload-time = "2024-09-29T18:31:12.471Z" }
+
+[[package]]
+name = "pyjwt"
+version = "2.11.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/5a/b46fa56bf322901eee5b0454a34343cdbdae202cd421775a8ee4e42fd519/pyjwt-2.11.0.tar.gz", hash = "sha256:35f95c1f0fbe5d5ba6e43f00271c275f7a1a4db1dab27bf708073b75318ea623", size = 98019, upload-time = "2026-01-30T19:59:55.694Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6f/01/c26ce75ba460d5cd503da9e13b21a33804d38c2165dec7b716d06b13010c/pyjwt-2.11.0-py3-none-any.whl", hash = "sha256:94a6bde30eb5c8e04fee991062b534071fd1439ef58d2adc9ccb823e7bcd0469", size = 28224, upload-time = "2026-01-30T19:59:54.539Z" },
+]
 
 [[package]]
 name = "pylatexenc"

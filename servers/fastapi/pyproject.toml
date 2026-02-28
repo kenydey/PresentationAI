@@ -25,6 +25,8 @@ dependencies = [
     "sqlmodel>=0.0.24",
     "nicegui>=2.0.0",
     "numpy>=1.24.0",
+    "bcrypt>=4.3.0",
+    "pyjwt>=2.11.0",
 ]
 [project.optional-dependencies]
 graphviz = ["pygraphviz>=1.11"]

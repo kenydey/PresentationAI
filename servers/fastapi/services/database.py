@@ -20,6 +20,7 @@ from models.sql.presentation_layout_code import PresentationLayoutCodeModel
 from models.sql.template import TemplateModel
 from models.sql.webhook_subscription import WebhookSubscription
 from models.sql.theme import ThemeModel, FooterModel
+from models.sql.user import UserModel
 from utils.db_utils import get_database_url_and_connect_args
 from utils.get_env import get_app_data_directory_env
 
@@ -75,6 +76,7 @@ async def create_db_and_tables():
                     AsyncPresentationGenerationTaskModel.__table__,
                     ThemeModel.__table__,
                     FooterModel.__table__,
+                    UserModel.__table__,
                 ],
             )
         )

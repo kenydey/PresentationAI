@@ -28,7 +28,12 @@ def get_temp_directory_env():
 
 
 def get_user_config_path_env():
-    return os.getenv("USER_CONFIG_PATH")
+    """返回用户配置 JSON 文件路径。未设置时默认使用 {APP_DATA_DIRECTORY}/userConfig.json。"""
+    value = os.getenv("USER_CONFIG_PATH")
+    if value and isinstance(value, str) and value.strip():
+        return value.strip()
+    app_data = get_app_data_directory_env()
+    return os.path.join(app_data, "userConfig.json")
 
 
 def get_llm_provider_env():

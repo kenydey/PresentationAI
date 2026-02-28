@@ -11,49 +11,6 @@ def viewer_page(id: str = ""):
     page_layout("演示查看")
     state = {"pid": id, "slides": [], "current": 0}
 
-    with ui.column().classes("w-full p-6 gap-4"):
-        ui.label("演示文稿查看/编辑").classes("text-2xl font-bold")
-
-        with ui.row().classes("gap-3 items-center"):
-            pid_input = ui.input("演示 ID", value=id).classes("w-96")
-            load_btn = ui.button("加载", icon="download", on_click=lambda: load_pres()).props("color=primary")
-
-        with ui.row().classes("w-full gap-6 items-start flex-wrap"):
-            # 左栏：幻灯片列表
-            with ui.card().classes("w-64"):
-                ui.label("幻灯片列表").classes("font-semibold mb-2")
-                slide_list = ui.column().classes("w-full gap-1 max-h-[500px] overflow-auto")
-
-            # 右栏：当前幻灯片详情
-            with ui.card().classes("flex-1 min-w-[400px]"):
-                slide_title = ui.label("选择一个幻灯片").classes("font-semibold text-lg")
-                slide_meta = ui.label().classes("text-xs text-gray-400")
-
-                with ui.tabs().classes("w-full") as tabs:
-                    tab_preview = ui.tab("预览")
-                    tab_content = ui.tab("字段")
-                    tab_html = ui.tab("HTML")
-                    tab_raw = ui.tab("JSON")
-                    tab_note = ui.tab("讲稿")
-
-                with ui.tab_panels(tabs, value=tab_preview).classes("w-full"):
-                    with ui.tab_panel(tab_preview):
-                        preview_display = ui.column().classes("w-full")
-                    with ui.tab_panel(tab_content):
-                        content_display = ui.column().classes("w-full gap-2")
-                    with ui.tab_panel(tab_html):
-                        html_display = ui.html("", sanitize=False).classes("w-full border rounded p-4 bg-white")
-                    with ui.tab_panel(tab_raw):
-                        raw_display = ui.code("", language="json").classes("w-full max-h-80 overflow-auto")
-                    with ui.tab_panel(tab_note):
-                        note_display = ui.label("").classes("w-full whitespace-pre-wrap")
-
-                with ui.row().classes("gap-2 mt-3"):
-                    edit_prompt = ui.input("编辑指令（如：让内容更简洁）").classes("flex-1")
-                    edit_btn = ui.button("AI 编辑此页", icon="edit", on_click=lambda: edit_slide()).props("outline")
-
-        log = ui.log().classes("h-24 w-full")
-
     async def load_pres():
         log.clear()
         pid = pid_input.value.strip()
@@ -198,6 +155,49 @@ def viewer_page(id: str = ""):
         log.push("编辑成功，重新加载…")
         ui.notify('编辑成功', type='positive')
         await load_pres()
+
+    with ui.column().classes("w-full p-6 gap-4"):
+        ui.label("演示文稿查看/编辑").classes("text-2xl font-bold")
+
+        with ui.row().classes("gap-3 items-center"):
+            pid_input = ui.input("演示 ID", value=id).classes("w-96")
+            load_btn = ui.button("加载", icon="download", on_click=load_pres).props("color=primary")
+
+        with ui.row().classes("w-full gap-6 items-start flex-wrap"):
+            # 左栏：幻灯片列表
+            with ui.card().classes("w-64"):
+                ui.label("幻灯片列表").classes("font-semibold mb-2")
+                slide_list = ui.column().classes("w-full gap-1 max-h-[500px] overflow-auto")
+
+            # 右栏：当前幻灯片详情
+            with ui.card().classes("flex-1 min-w-[400px]"):
+                slide_title = ui.label("选择一个幻灯片").classes("font-semibold text-lg")
+                slide_meta = ui.label().classes("text-xs text-gray-400")
+
+                with ui.tabs().classes("w-full") as tabs:
+                    tab_preview = ui.tab("预览")
+                    tab_content = ui.tab("字段")
+                    tab_html = ui.tab("HTML")
+                    tab_raw = ui.tab("JSON")
+                    tab_note = ui.tab("讲稿")
+
+                with ui.tab_panels(tabs, value=tab_preview).classes("w-full"):
+                    with ui.tab_panel(tab_preview):
+                        preview_display = ui.column().classes("w-full")
+                    with ui.tab_panel(tab_content):
+                        content_display = ui.column().classes("w-full gap-2")
+                    with ui.tab_panel(tab_html):
+                        html_display = ui.html("", sanitize=False).classes("w-full border rounded p-4 bg-white")
+                    with ui.tab_panel(tab_raw):
+                        raw_display = ui.code("", language="json").classes("w-full max-h-80 overflow-auto")
+                    with ui.tab_panel(tab_note):
+                        note_display = ui.label("").classes("w-full whitespace-pre-wrap")
+
+                with ui.row().classes("gap-2 mt-3"):
+                    edit_prompt = ui.input("编辑指令（如：让内容更简洁）").classes("flex-1")
+                    edit_btn = ui.button("AI 编辑此页", icon="edit", on_click=edit_slide).props("outline")
+
+        log = ui.log().classes("h-24 w-full")
 
     if id:
         ui.timer(0.3, load_pres, once=True)

@@ -10,6 +10,37 @@ import aiohttp
 def fonts_page():
     page_layout("字体管理")
 
+    async def load_fonts():
+        log.clear()
+        status, data = await api_get("/api/v1/ppt/fonts/list")
+        if status != 200:
+            log.push(f"加载失败: {data}")
+            return
+        fonts = data.get("fonts", []) if isinstance(data, dict) else []
+        font_list.clear()
+        for f in fonts:
+            fname = f if isinstance(f, str) else f.get("filename", str(f))
+            with font_list:
+                with ui.row().classes("items-center justify-between w-full px-2 py-1 bg-gray-50 rounded"):
+                    ui.icon("text_fields").classes("text-[#6C63FF]")
+                    ui.label(fname).classes("flex-1")
+                    ui.button(icon="delete", on_click=make_del_handler(fname)).props("flat round dense color=negative size=sm")
+        log.push(f"已加载 {len(fonts)} 个字体")
+
+    async def del_font(filename):
+        status, _ = await api_delete(f"/api/v1/ppt/fonts/delete/{filename}")
+        if status in (200, 204):
+            log.push(f"已删除 {filename}")
+            ui.notify('字体已删除', type='positive')
+        else:
+            log.push(f"删除失败")
+        await load_fonts()
+
+    def make_del_handler(filename):
+        async def handler():
+            await del_font(filename)
+        return handler
+
     with ui.column().classes("w-full p-6 gap-4"):
         ui.label("字体管理").classes("text-2xl font-bold")
 
@@ -37,7 +68,7 @@ def fonts_page():
             with ui.card().classes("flex-1 min-w-[400px]"):
                 with ui.row().classes("items-center justify-between"):
                     ui.label("已上传字体").classes("font-semibold")
-                    ui.button("刷新", icon="refresh", on_click=lambda: load_fonts()).props("flat")
+                    ui.button("刷新", icon="refresh", on_click=load_fonts).props("flat")
 
                 font_table = ui.table(
                     columns=[
@@ -51,31 +82,5 @@ def fonts_page():
                 font_list = ui.column().classes("w-full gap-2")
 
         log = ui.log().classes("h-24 w-full")
-
-    async def load_fonts():
-        log.clear()
-        status, data = await api_get("/api/v1/ppt/fonts/list")
-        if status != 200:
-            log.push(f"加载失败: {data}")
-            return
-        fonts = data.get("fonts", []) if isinstance(data, dict) else []
-        font_list.clear()
-        for f in fonts:
-            fname = f if isinstance(f, str) else f.get("filename", str(f))
-            with font_list:
-                with ui.row().classes("items-center justify-between w-full px-2 py-1 bg-gray-50 rounded"):
-                    ui.icon("text_fields").classes("text-[#6C63FF]")
-                    ui.label(fname).classes("flex-1")
-                    ui.button(icon="delete", on_click=lambda fn=fname: del_font(fn)).props("flat round dense color=negative size=sm")
-        log.push(f"已加载 {len(fonts)} 个字体")
-
-    async def del_font(filename):
-        status, _ = await api_delete(f"/api/v1/ppt/fonts/delete/{filename}")
-        if status in (200, 204):
-            log.push(f"已删除 {filename}")
-            ui.notify('字体已删除', type='positive')
-        else:
-            log.push(f"删除失败")
-        await load_fonts()
 
     ui.timer(0.3, load_fonts, once=True)

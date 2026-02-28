@@ -7,7 +7,7 @@ from api.middlewares import UserConfigEnvUpdateMiddleware
 from api.v1.ppt.router import API_V1_PPT_ROUTER
 from api.v1.webhook.router import API_V1_WEBHOOK_ROUTER
 from api.v1.mock.router import API_V1_MOCK_ROUTER
-from nicegui_app import create_nicegui_app
+from nicegui_app import register_nicegui
 
 
 app = FastAPI(lifespan=app_lifespan)
@@ -31,9 +31,8 @@ app.add_middleware(UserConfigEnvUpdateMiddleware)
 @app.get("/", include_in_schema=False)
 def _redirect_root_to_ui():
     """根路径重定向到 /ui，避免访问 / 时出现 404。"""
-    return RedirectResponse(url="/ui", status_code=302)
+    return RedirectResponse(url="/ui/", status_code=302)
 
 
-# Mount NiceGUI under /ui to avoid conflicting with existing API routes
-nicegui_asgi_app = create_nicegui_app()
-app.mount("/ui", nicegui_asgi_app)
+# 将 NiceGUI 直接挂载到主 app 的 /ui 路径（避免子 app mount 导致 404）
+register_nicegui(app)

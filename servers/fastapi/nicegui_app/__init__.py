@@ -1,10 +1,9 @@
 """NiceGUI frontend application — modular page structure.
 
 All pages are defined in nicegui_app/pages/ and registered via @ui.page decorators.
-This module creates the FastAPI sub-application and binds NiceGUI to it.
+Register NiceGUI at /ui on the main FastAPI app via register_nicegui(app).
 """
 
-from fastapi import FastAPI
 from nicegui import ui
 
 # Import all page modules to trigger @ui.page registrations
@@ -17,8 +16,6 @@ import nicegui_app.templates.standard_contact  # noqa: F401
 import nicegui_app.templates.standard_chart_left  # noqa: F401
 
 
-def create_nicegui_app() -> FastAPI:
-    """Create the NiceGUI ASGI app to be mounted under /ui."""
-    app = FastAPI()
+def register_nicegui(app):
+    """Register NiceGUI UI at /ui on the given FastAPI app. Call this after app creation."""
     ui.run_with(app, mount_path="/ui")
-    return app

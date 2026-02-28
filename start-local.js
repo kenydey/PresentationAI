@@ -1,6 +1,6 @@
 /**
  * Presenton 本地运行脚本 (uv / pip 安装模式)
- * 不使用 nginx，直接运行 FastAPI + Next.js，通过 Next.js 代理 API 请求
+ * 仅运行 FastAPI（内含 NiceGUI 前端），不再依赖 Next.js
  *
  * 使用方式:
  *   node start-local.js           # uv 模式 (默认)
@@ -17,7 +17,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const fastapiDir = join(__dirname, "servers/fastapi");
-const nextjsDir = join(__dirname, "servers/nextjs");
 
 const args = process.argv.slice(2);
 const hasDevArg = args.includes("--dev") || args.includes("-d");
@@ -25,7 +24,6 @@ const usePip = args.includes("--pip");
 const isDev = hasDevArg;
 
 const fastapiPort = parseInt(process.env.FASTAPI_PORT || "8000", 10);
-const nextjsPort = parseInt(process.env.NEXTJS_PORT || "5000", 10);
 const appmcpPort = parseInt(process.env.MCP_PORT || "8001", 10);
 
 // 本地模式默认使用项目内的 app_data
@@ -78,7 +76,6 @@ const setupUserConfigFromEnv = () => {
     DISABLE_THINKING: process.env.DISABLE_THINKING || existingConfig.DISABLE_THINKING,
     EXTENDED_REASONING: process.env.EXTENDED_REASONING || existingConfig.EXTENDED_REASONING,
     WEB_GROUNDING: process.env.WEB_GROUNDING || existingConfig.WEB_GROUNDING,
-    USE_CUSTOM_URL: process.env.USE_CUSTOM_URL || existingConfig.USE_CUSTOM_URL,
     COMFYUI_URL: process.env.COMFYUI_URL || existingConfig.COMFYUI_URL,
     COMFYUI_WORKFLOW: process.env.COMFYUI_WORKFLOW || existingConfig.COMFYUI_WORKFLOW,
     DALL_E_3_QUALITY: process.env.DALL_E_3_QUALITY || existingConfig.DALL_E_3_QUALITY,
@@ -117,9 +114,9 @@ const getMcpArgs = (cmd) => {
 const startServers = async () => {
   const pythonCmd = getPythonCmd();
 
-  console.log("\n==> Presenton 本地模式");
-  console.log("    前端: http://localhost:" + nextjsPort);
-  console.log("    API:  http://localhost:" + fastapiPort);
+  console.log("\n==> Presenton 本地模式 (FastAPI + NiceGUI)");
+  console.log("    UI:   http://localhost:" + fastapiPort + "/ui");
+  console.log("    API:  http://localhost:" + fastapiPort + "/docs");
   console.log("    模式:", usePip ? "pip" : "uv");
   if (isDev) console.log("    开发: 热重载已启用");
   console.log("");
@@ -144,6 +141,7 @@ const startServers = async () => {
     console.error("MCP 启动失败:", err.message);
   });
 
+  // Ollama (可选)
   let ollamaProcess = null;
   let ollamaConfig = process.env.LLM;
   if (!ollamaConfig && existsSync(userConfigPath)) {
@@ -166,39 +164,8 @@ const startServers = async () => {
     }
   }
 
-  // Next.js 需设置 API 代理目标 (用于 rewrites) 及 schema 页面 base (用于 puppeteer)
-  const nextEnv = {
-    ...process.env,
-    FASTAPI_URL: `http://127.0.0.1:${fastapiPort}`,
-    MCP_URL: `http://127.0.0.1:${appmcpPort}`,
-    SCHEMA_BASE_URL: `http://127.0.0.1:${nextjsPort}`,
-  };
-
-  const nextjsProcess = spawn(
-    "npm",
-    [
-      "run",
-      isDev ? "dev" : "start",
-      "--",
-      "-H",
-      "127.0.0.1",
-      "-p",
-      nextjsPort.toString(),
-    ],
-    {
-      cwd: nextjsDir,
-      stdio: "inherit",
-      env: nextEnv,
-    }
-  );
-
-  nextjsProcess.on("error", (err) => {
-    console.error("Next.js 启动失败:", err.message);
-  });
-
   const exitPromises = [
     new Promise((r) => fastApiProcess.on("exit", r)),
-    new Promise((r) => nextjsProcess.on("exit", r)),
   ];
   if (ollamaProcess) {
     exitPromises.push(new Promise((r) => ollamaProcess.on("exit", r)));
@@ -209,15 +176,4 @@ const startServers = async () => {
 };
 
 setupUserConfigFromEnv();
-
-// 开发模式时确保 node_modules 已安装
-if (isDev) {
-  const setupNodeModules = () =>
-    new Promise((resolve, reject) => {
-      const p = spawn("npm", ["install"], { cwd: nextjsDir, stdio: "inherit", env: process.env });
-      p.on("exit", (c) => (c === 0 ? resolve() : reject(new Error("npm install failed"))));
-    });
-  await setupNodeModules();
-}
-
 startServers();

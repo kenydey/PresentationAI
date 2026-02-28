@@ -1,27 +1,18 @@
+"""Layout endpoints — now served from local template registry (no Next.js dependency)."""
+
 from fastapi import APIRouter, HTTPException
-import aiohttp
-from typing import List, Any
 from utils.get_layout_by_name import get_layout_by_name
+from utils.template_registry import get_template_groups
 from models.presentation_layout import PresentationLayoutModel
 
 LAYOUTS_ROUTER = APIRouter(prefix="/layouts", tags=["Layouts"])
 
-@LAYOUTS_ROUTER.get("/", summary="Get available layouts")
+
+@LAYOUTS_ROUTER.get("/", summary="Get available template groups")
 async def get_layouts():
-    url = "http://localhost:5000/api/layouts"  # Adjust port if needed
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status != 200:
-                error_text = await response.text()
-                raise HTTPException(
-                    status_code=response.status,
-                    detail=f"Failed to fetch layouts: {error_text}"
-                )
-            layouts_json = await response.json()
-    # Optionally, parse into a Pydantic model if you have one matching the structure
-    return layouts_json
+    return get_template_groups()
 
 
-@LAYOUTS_ROUTER.get("/{layout_name}", summary="Get layout details by ID")
+@LAYOUTS_ROUTER.get("/{layout_name}", summary="Get layout details by group name")
 async def get_layout_detail(layout_name: str) -> PresentationLayoutModel:
     return await get_layout_by_name(layout_name)

@@ -436,6 +436,7 @@ async def export_presentation_as_pptx_or_pdf(
         id,
         presentation.title or str(uuid.uuid4()),
         export_as,
+        sql_session=sql_session,
     )
 
     return PresentationPathAndEditPath(
@@ -748,7 +749,8 @@ async def generate_presentation_handler(
 
         # 9. Export
         presentation_and_path = await export_presentation(
-            presentation_id, presentation.title or str(uuid.uuid4()), request.export_as
+            presentation_id, presentation.title or str(uuid.uuid4()), request.export_as,
+            sql_session=sql_session,
         )
 
         response = PresentationPathAndEditPath(
@@ -902,7 +904,8 @@ async def edit_presentation_with_new_content(
     await sql_session.commit()
 
     presentation_and_path = await export_presentation(
-        presentation.id, presentation.title or str(uuid.uuid4()), data.export_as
+        presentation.id, presentation.title or str(uuid.uuid4()), data.export_as,
+        sql_session=sql_session,
     )
 
     return PresentationPathAndEditPath(
@@ -942,7 +945,8 @@ async def derive_presentation_from_existing_one(
     await sql_session.commit()
 
     presentation_and_path = await export_presentation(
-        new_presentation.id, new_presentation.title or str(uuid.uuid4()), data.export_as
+        new_presentation.id, new_presentation.title or str(uuid.uuid4()), data.export_as,
+        sql_session=sql_session,
     )
 
     return PresentationPathAndEditPath(

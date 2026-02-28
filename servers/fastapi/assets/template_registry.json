@@ -1,0 +1,1069 @@
+{
+  "general": {
+    "name": "general",
+    "description": "General purpose layouts for common presentation elements",
+    "ordered": false,
+    "default": true,
+    "slides": [
+      {
+        "id": "basic-info-slide",
+        "name": "Basic Info",
+        "description": "A clean slide layout with title, description text, and a supporting image.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "bullet-icons-only-slide",
+        "name": "Bullet Icons Only",
+        "description": "A slide layout with title, grid of bullet points (title and description) with icons, and a supporting image.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "bullet-with-icons-slide",
+        "name": "Bullet with Icons",
+        "description": "A bullets style slide with main content, supporting image, and bullet points with icons and descriptions.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "chart-with-bullets-slide",
+        "name": "Chart with Bullet Boxes",
+        "description": "A slide layout with title, description, chart on the left and colored bullet boxes with icons on the right. Only choose this if data is available.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "general-intro-slide",
+        "name": "Intro Slide",
+        "description": "A clean slide layout with title, description text, presenter info, and a supporting image.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "metrics-slide",
+        "name": "Metrics",
+        "description": "A slide layout for showcasing key business metrics with large numbers and descriptive text boxes. This should only be used with metrics and numbers.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "metrics-with-image-slide",
+        "name": "Metrics with Image",
+        "description": "A slide layout with supporting image on the left and title, description, and metrics grid on the right. Can be used alternatively with MetricSlide.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "numbered-bullets-slide",
+        "name": "Numbered Bullets",
+        "description": "A slide layout with large title, supporting image, and numbered bullet points with descriptions.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "quote-slide",
+        "name": "Quote",
+        "description": "A slide layout with a heading, inspirational quote, and background image with overlay for text visibility.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "table-info-slide",
+        "name": "Table with Info",
+        "description": "A slide layout with a title at the top, structured table in the middle, and descriptive text at the bottom.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "table-of-contents-slide",
+        "name": "Table of Contents",
+        "description": "A professional table of contents layout with numbered sections, and page references. This should be right after introduction slide if ever used.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "sections": {
+              "type": "array"
+            },
+            "number": {
+              "type": "number"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "team-slide",
+        "name": "Team Slide",
+        "description": "A slide layout showcasing team members with photos, names, positions, and descriptions alongside company information.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "modern": {
+    "name": "modern",
+    "description": "Modern white and blue business pitch deck layouts with clean, professional design",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "bullet-with-icons",
+        "name": "Bullet With Icons Slide Layout",
+        "description": "Bullets with icons slide layout",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "bullet-with-icons-description-grid",
+        "name": "Bullet With Icons Description Grid",
+        "description": "A bullet with icons description grid slide layout",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "chart-or-table-with-description",
+        "name": "Chart or Table With Description",
+        "description": "Chart with description slide layout",
+        "json_schema": {}
+      },
+      {
+        "id": "chart-with-metrics",
+        "name": "Chart With Metrics Slide",
+        "description": "A chart or table with metrics slide layout",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "image-and-description",
+        "name": "Image And Description",
+        "description": "A slide layout with a title, a description, and an image.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "image-list-with-description",
+        "name": "Image List with Description",
+        "description": "An image list with description slide layout",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "images-with-description",
+        "name": "Images With Description",
+        "description": "Images with description slide layout",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "intro-pitchdeck-slide",
+        "name": "Intro Pitch Deck Slide",
+        "description": "A visually appealing introduction slide for a pitch deck, featuring a large title, company name, date, and contact information with a modern design. This Slide is always the first slide in a pitch deck, setting the tone for the presentation with a clean and professional look.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "metrics-with-description-image",
+        "name": "Metrics With Description and Image Slide Layout",
+        "description": "Metrics with description slide layout with an image as whole for the slide",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "table-of-contents",
+        "name": "Table Of Contents",
+        "description": "A clean table of contents layout with up to 10 items, each with a short description, styled to match the modern template.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "neo-general": {
+    "name": "neo-general",
+    "description": "New general purpose layouts for common presentation elements",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "bullet-icons-only-slide",
+        "name": "Icon Bullet Grid With Image",
+        "description": "A layout featuring a large left-aligned title with a 2-4 icon bullet point grid, each with circular icon badge, title, and optional subtitle. A rounded supporting image sits on the right.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "bullet-with-icons-slide",
+        "name": "Image With Icon Bullets",
+        "description": "A two-section layout with a full-width title, left-side image with decorative grid pattern, and right-side content featuring description text and 1-3 icon-enhanced bullet points. Each bullet has an icon badge, title, accent line, and description.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "title-challenge-outcome-customer-card",
+        "name": "Two Section Text With Highlight Card",
+        "description": "A two-section layout featuring title with accent bar, first section with heading and description, numbered list in the second section on the left, and a highlight card on the right with name, subtitle, icon badge, and prominent metric.",
+        "json_schema": {}
+      },
+      {
+        "id": "chart-with-bullets-slide",
+        "name": "Chart With Bullet Cards",
+        "description": "A split layout with title, description, and a versatile chart on the left, paired with 1-3 colored icon bullet cards on the right. Supports bar, grouped, stacked, clustered, diverging, line, area, pie, and scatter charts.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "performance-grid-snapshot-slide",
+        "name": "Metric Cards Grid",
+        "description": "A centered layout with bold title and accent bar, followed by a 4x2 grid of up to 8 metric cards. Each card displays a value, label, and subtext. Cards can optionally be highlighted with colored background.",
+        "json_schema": {}
+      },
+      {
+        "id": "headline-description-with-double-image-layout",
+        "name": "Title Description With Two Images",
+        "description": "A clean layout with left-aligned bold title, accent bar, and description paragraph, paired with two overlapping rounded images on the right in a grid arrangement.",
+        "json_schema": {}
+      },
+      {
+        "id": "headline-description-with-image-layout",
+        "name": "Title Description With Image",
+        "description": "A minimal two-column layout featuring bold title, accent bar, and description on the left, with a single rounded image on the right.",
+        "json_schema": {}
+      },
+      {
+        "id": "headline-text-with-stats-layout",
+        "name": "Numbered List With Side Metrics",
+        "description": "A two-column layout with bold title, accent bar, and numbered bullet point list on the left, paired with 3 large vertical metrics on the right. Each metric shows value with label and accent dot.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-three-columns-with-labels",
+        "name": "Three Columns With Index Numbers",
+        "description": "A layout featuring bold title with accent bar, followed by three indexed columns each containing large index number, heading, and two labeled content sections.",
+        "json_schema": {}
+      },
+      {
+        "id": "layout-text-block-with-metric-cards",
+        "name": "Text Block With Progress Metric Cards",
+        "description": "A split layout with title, subheading, and description on the left, paired with a gray panel containing up to 5 metric cards on the right. Each card shows name, value, target comparison, and semi-circular progress indicator.",
+        "json_schema": {}
+      },
+      {
+        "id": "left-align-quote",
+        "name": "Left-Aligned Text On Background Image",
+        "description": "A full-bleed background image layout featuring a left-aligned bold title with accent bar, a prominent quote in large text, and author attribution below.",
+        "json_schema": {}
+      },
+      {
+        "id": "metrics-with-image-slide",
+        "name": "Image With Title And Metrics",
+        "description": "A two-column layout with a large supporting image on the left and content on the right including title, description, and a 2-column metrics grid displaying up to 3 statistics with labels and values.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "multi-chart-grid-slide",
+        "name": "Title Description With Multi-Chart Grid",
+        "description": "A flexible dashboard layout featuring a title section with description and 1-6 auto-arranged charts in a responsive grid. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "numbered-bullets-slide",
+        "name": "Title Image With Numbered Points",
+        "description": "A layout featuring a large title with accent line, a supporting image in the upper right, and 1-3 numbered bullet points in a two-column grid below. Each point has a large number prefix, title, and description.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "quote-slide",
+        "name": "Centered Text On Image Overlay",
+        "description": "A full-screen layout with background image, semi-transparent overlay, centered heading with accent line, large quote icon, quote text, and author attribution with decorative lines.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "title-two-column-numbered-list",
+        "name": "Split Title With Two Column Numbered List",
+        "description": "A split layout with large title on the left and two-column numbered list on the right. Each item displays a numbered circle badge and label.",
+        "json_schema": {}
+      },
+      {
+        "id": "team-slide",
+        "name": "Description With Photo Cards Grid",
+        "description": "A two-section layout with title, accent line, and description on the left, paired with a 2x2 or flexible grid of 2-4 person cards on the right. Each card displays photo, name, position, and bio.",
+        "json_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "id": "title-side-insight-slide",
+        "name": "Split Title With Text Card",
+        "description": "A balanced two-section layout with bold title and accent bar on the left, paired with a white card on the right containing accent-colored heading and description text.",
+        "json_schema": {}
+      },
+      {
+        "id": "thank-you-contact-info-footer-image-slide-layout",
+        "name": "Centered Title With Contact And Footer Image",
+        "description": "A conclusion slide featuring centered title with accent bar, description text on the left, contact information (phone, email, website) aligned right, and a full-width footer image.",
+        "json_schema": {}
+      },
+      {
+        "id": "timeline-alternating-cards-slide",
+        "name": "Horizontal Timeline With Cards",
+        "description": "A visual timeline layout featuring centered title, horizontal dashed axis line, and 2-6 milestone cards alternating above and below the axis. Each card shows a date label and description with colored accent dots.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-bullets",
+        "name": "Title Description With Multi-Chart Grid + Bullets",
+        "description": "A dashboard layout featuring a title and description, up to 4 bullet points, and 1-4 auto-arranged charts in a responsive grid. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-metrics",
+        "name": "Title Description With Multi-Chart Grid + Metrics",
+        "description": "A dashboard layout featuring a title and description, up to 4 KPI metrics, and 1-6 auto-arranged charts in a responsive grid. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts. Ideal for analytics overviews, KPI summaries, and performance dashboards.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-three-columns-table",
+        "name": "Title Description With Three Column Table",
+        "description": "A layout featuring split title and description at the top, followed by a three-column table with colored headers and vertical bullet point sections below each.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-metricValue-metricLabel-funnelStages",
+        "name": "Metric With Funnel Bars",
+        "description": "A layout featuring title with accent bar, left-side key metric with label, and horizontal funnel visualization on the right. Each funnel stage shows labeled pill, connector line, and colored bar with value and rate.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-metrics-with-chart",
+        "name": "Chart With Sidebar Metrics",
+        "description": "A two-column layout featuring a bold title, a large chart container on the left, and up to 6 vertical metrics on the right sidebar. Supports line, bar, grouped, stacked, clustered, diverging, area, pie, and donut charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-three-column-risk-constraints-slide-layout",
+        "name": "Three Column Category Cards",
+        "description": "A layout with bold title and accent bar at top, followed by three column cards each featuring large category label, subtitle with accent dot, and detailed description.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-team-grid",
+        "name": "Title Description With Photo Row",
+        "description": "A top-aligned layout featuring split title and description sections at the top, followed by a horizontal row of up to 4 person cards. Each card shows name, designation, square photo, and brief bio.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-with-full-width-chart",
+        "name": "Title With Full-Width Chart",
+        "description": "A centered layout with a bold title and underline accent, followed by a full-width chart container with legend. Supports line, bar, grouped, stacked, clustered, diverging, area, pie, and donut charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-six-card-grid-slide-layout",
+        "name": "Title With Six Text Cards Grid",
+        "description": "A layout featuring left-aligned bold title with accent bar, followed by a 3x2 grid of up to 6 cards. Each card contains an accent-colored heading and description text.",
+        "json_schema": {}
+      }
+    ]
+  },
+  "neo-modern": {
+    "name": "neo-modern",
+    "description": "New modern purpose layouts for common presentation elements",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "title-description-bullet-list",
+        "name": "Title Description Bullet List",
+        "description": "A clean two-column layout with a main title and description on the left, and up to 5 bullet points on the right. Each bullet has a heading and a short description. Ideal for key takeaways, feature highlights, or structured lists with context.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-contact-list",
+        "name": "Title Description Contact List",
+        "description": "A slide featuring a title and description on the left with up to 3 icon-enhanced contact items on the right. Each item has an icon, label, and value.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-dual-metrics-grid",
+        "name": "Title Description Dual Metrics Grid",
+        "description": "A slide featuring a title and description on the left, with two columns of metric cards on the right - primary metrics in bold styling and secondary metrics in subtle styling. Supports up to 6 metrics total (3 per column).",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-icon-timeline",
+        "name": "Title Description Icon Timeline",
+        "description": "A slide featuring a title and description on the left with a vertical list of icon-enhanced items on the right. Each item has a circular icon, heading, and description.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-image-right",
+        "name": "Title Description Image Right",
+        "description": "A two-column slide with a title and description on the left and a large featured image on the right. The balanced layout provides equal emphasis on textual content and visual representation.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-metrics-chart",
+        "name": "Title Description Metrics Chart",
+        "description": "A slide featuring a main title, description, metric cards grid on the left, and a chart panel on the right. Supports bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-metrics-image",
+        "name": "Title Description Metrics Image",
+        "description": "A slide featuring a title, description, and 2x2 metrics grid on the left with a large vertical image on the right. The alternating metric cards create visual hierarchy.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid",
+        "name": "Title Description With Multi-Chart Grid",
+        "description": "A neo-modern dashboard layout with title, description, and 1–6 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-bullets",
+        "name": "Title Description With Multi-Chart Grid + Bullets",
+        "description": "A neo-modern dashboard with title, description, up to 6 bullet points, and 1–4 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-metrics",
+        "name": "Title Description With Multi-Chart Grid + Metrics",
+        "description": "A neo-modern dashboard with title, description, up to 4 KPI metrics, and 1–6 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-table",
+        "name": "Title Description Table",
+        "description": "A slide featuring a bold title, description, and a clean 3-column table with color-highlighted headers. The header row provides visual hierarchy while rounded cell backgrounds maintain a modern appearance.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-dual-comparison-cards",
+        "name": "Title Dual Comparison Cards",
+        "description": "A comparison slide with a centered title and two equal-sized cards below. Each card contains a heading, decorative accent line, and detailed description. The symmetrical layout emphasizes balanced evaluation of two items.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-dual-comparison-charts",
+        "name": "Title Dual Comparison Charts",
+        "description": "A comparison slide with a main title and two side-by-side chart panels, each supporting bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-horizontal-alternating-timeline",
+        "name": "Title Horizontal Alternating Timeline",
+        "description": "A horizontal timeline slide with alternating content boxes above and below a central axis line. Features a prominent title with up to 7 timeline events, each displaying a heading and description. The zigzag pattern creates visual interest while showing chronological progression.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-kpi-snapshot-grid",
+        "name": "Title KPI Snapshot Grid",
+        "description": "A slide featuring a centered title with an 8-card grid below. Each card supports flexible formatting - value-first or label-first layouts, optional highlighting, and suffix text.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-subtitles-chart",
+        "name": "Title Subtitles Chart",
+        "description": "A slide with a centered title, two subtitles, and a chart within a bordered content area. Supports bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-two-column-numbered-list",
+        "name": "Title Two Column Numbered List",
+        "description": "A slide layout featuring a large title on the left with a two-column numbered list on the right. Each item displays a circular number badge, heading, and description. The numbered format emphasizes sequential order and progression of items.",
+        "json_schema": {}
+      }
+    ]
+  },
+  "neo-standard": {
+    "name": "neo-standard",
+    "description": "New standard purpose layouts for common presentation elements",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "title-badge-chart",
+        "name": "Title Badge Chart",
+        "description": "A slide featuring a centered title, a category badge, and a chart with supplementary labels, supporting bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-bullet-list",
+        "name": "Title Description Bullet List",
+        "description": "A clean two-column layout with a main title and description on the left, and up to 5 bullet points on the right. Each bullet has a heading and a short description. Ideal for key takeaways, feature highlights, or structured lists with context.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-contact-cards",
+        "name": "Title Description Contact Cards",
+        "description": "A closing slide with a title, description text, and three contact information cards for email, phone, and website, ideal for thank you or contact pages.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-icon-list",
+        "name": "Title Description Icon List",
+        "description": "A two-column slide with a title and description on the left, and a vertical list of icon-led items on the right, perfect for processes, steps, or feature lists.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-image-right",
+        "name": "Title Description Image Right",
+        "description": "A two-column slide with a title and description paragraph on the left, and a large featured image on the right.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid",
+        "name": "Title Description With Multi-Chart Grid",
+        "description": "A neo-standard dashboard layout with title, description, and 1–6 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-bullets",
+        "name": "Title Description With Multi-Chart Grid + Bullets",
+        "description": "A neo-standard dashboard with title, description, up to 6 bullet points, and 1–4 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-multi-chart-grid-metrics",
+        "name": "Title Description With Multi-Chart Grid + Metrics",
+        "description": "A neo-standard dashboard with title, description, up to 4 KPI metrics, and 1–6 auto-arranged charts. Supports bar (vertical, horizontal, grouped, stacked, clustered, diverging), line, area, pie, donut, and scatter charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-radial-cards",
+        "name": "Title Description Radial Cards",
+        "description": "A centered slide featuring a title and description at the top, followed by a flexible grid of up to 8 cards with radial progress charts.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-table",
+        "name": "Title Description Table",
+        "description": "A slide featuring a title and description at the top, followed by a 3-column table with color-highlighted headers, ideal for comparisons, matrices, or structured data.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-timeline",
+        "name": "Title Description Timeline",
+        "description": "A two-column slide with a title and description on the left, and a vertical timeline of events with year markers on the right, ideal for milestones or history.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-dual-charts-comparison",
+        "name": "Title Dual Charts Comparison",
+        "description": "A comparison slide with a centered title and two side-by-side chart panels, each supporting bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types for data visualization.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-dual-comparison-cards",
+        "name": "Title Dual Comparison Cards",
+        "description": "A comparison slide with a centered title and two side-by-side cards featuring numbered headings and descriptions, ideal for problem/solution or before/after comparisons.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-kpi-grid",
+        "name": "Title KPI Grid",
+        "description": "A slide featuring a centered title followed by a flexible grid of up to 8 KPI metric boxes with values and descriptions, perfect for dashboards and reports.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-metrics-chart",
+        "name": "Title Metrics Chart",
+        "description": "A two-column slide with a title, description, and 2x2 metric grid on the left, and a chart panel on the right supporting bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, and scatter chart types.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-metrics-image",
+        "name": "Title Metrics Image",
+        "description": "A slide featuring a title, description, and a 2x2 grid of metric cards on the left, with a large image on the right.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-points-donut-grid",
+        "name": "Title Points Donut Grid",
+        "description": "A slide with a title and numbered summary points on the left, paired with a 2x3 grid of analytical cards featuring donut progress charts on the right.",
+        "json_schema": {}
+      }
+    ]
+  },
+  "neo-swift": {
+    "name": "neo-swift",
+    "description": "New swift purpose layouts for common presentation elements",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "title-centered-chart",
+        "name": "Title Centered Chart",
+        "description": "A clean slide layout with a large centered title and a prominent chart (bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, or scatter) within a grey container. Ideal for showcasing distribution data, single-metric trends, or category breakdowns in a visually impactful way.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-chart-metrics-sidebar",
+        "name": "Title Chart Metrics Sidebar",
+        "description": "A professional slide featuring a prominent chart (bar, grouped bar, stacked bar, clustered bar, diverging bar, horizontal bar, line, area, pie, donut, or scatter) on the left displaying trend data, and a vertical stack of metric cards on the right. Ideal for presenting performance metrics, financial trends, or KPI comparisons with supporting data points.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-bullet-list",
+        "name": "Title Description Bullet List",
+        "description": "A clean two-column layout with a main title and description on the left, and up to 5 bullet points on the right. Each bullet has a heading and a short description. Ideal for key takeaways, feature highlights, or structured lists with context.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-three-column-table",
+        "name": "Title Description Three Column Table",
+        "description": "A structured data presentation slide featuring a large header title on the left and a descriptive paragraph on the right, followed by a three-column table with a colored header row. Each table cell supports multi-line text. Ideal for presenting structured comparisons, problem-solution matrices, feature breakdowns, or any tabular data that benefits from visual organization.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-four-charts-six-bullets",
+        "name": "Title Description Four Charts Six Bullets",
+        "description": "Neo Swift layout with title, description, a grid of up to 4 charts, and up to 6 bullet points in a sidebar. Ideal for data plus key takeaways, like neo-general Chart Grid + Bullets.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-large-image-right",
+        "name": "Title Description Large Image Right",
+        "description": "A balanced two-column layout with a title and descriptive text on the left, and a large prominent image on the right. The footer includes a website link and a decorative line. Ideal for introducing topics, highlighting concepts with strong visual support, or presenting narratives that benefit from an impactful image.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-eight-metrics-grid",
+        "name": "Title Description Eight Metrics Grid",
+        "description": "A data-centric slide with a centered title and description at the top, followed by a 4x2 grid of metric cards. Each card displays a label, a prominent value, and a supporting description. Ideal for presenting KPIs, dashboards, performance snapshots, or comparative statistics in a clean, scannable format.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-metrics-grid-large-image",
+        "name": "Title Description Metrics Grid Large Image",
+        "description": "A versatile slide layout combining text, metrics, and imagery. Features a title and description on the left with a 2x2 grid of icon-enhanced metric cards, and a large vertical image on the right. Each metric card includes an icon, label, value, and supporting text. Perfect for executive summaries, project overviews, or reports where key data points need visual context.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-six-charts-four-metrics",
+        "name": "Title Description Six Charts Four Metrics",
+        "description": "Neo Swift layout with title, description, 4 KPI metric cards, and a responsive grid of up to 6 charts. Ideal for analytics overviews and performance dashboards.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-description-six-charts-grid",
+        "name": "Title Description Six Charts Grid",
+        "description": "Neo Swift layout with a title, description, and a responsive grid of up to 6 charts (bar, line, area, pie, donut, scatter, etc.). Ideal for dashboards and data overviews.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-dual-comparison-blocks-numbered",
+        "name": "Title Dual Comparison Blocks Numbered",
+        "description": "A comparison slide featuring a centered title and two side-by-side content blocks with circular numbered indicators. Each block has a heading and descriptive text with alternating highlight colors. Ideal for presenting problem/solution pairs, before/after scenarios, pros/cons lists, or any two-part comparison narrative.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-label-description-cascading-stats",
+        "name": "Title Label Description Cascading Stats",
+        "description": "An executive summary slide featuring a bold title and descriptive paragraph on the left, paired with three cascading statistic cards on the right. The cards progressively decrease in width, creating a visually dynamic layout. Ideal for presenting key metrics, achievements, or highlights alongside context-setting narrative text.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-subtitle-four-team-member-cards",
+        "name": "Title Subtitle Four Team Member Cards",
+        "description": "A professional team showcase slide featuring a centered title and descriptive subtitle at the top, followed by four horizontal team member cards. Each card displays the member\\",
+        "json_schema": {}
+      },
+      {
+        "id": "title-tagline-description-numbered-steps",
+        "name": "Title Tagline Description Numbered Steps",
+        "description": "A clean two-column layout featuring a main title, tagline, and descriptive paragraph on the left, with a numbered step-by-step vertical list on the right. Each step has a circular number indicator, a heading, and a description. Ideal for outlining processes, workflows, methodologies, or sequential instructions.",
+        "json_schema": {}
+      },
+      {
+        "id": "title-three-by-three-metrics-grid",
+        "name": "Title 3x3 Metrics Comparison Grid",
+        "description": "A comprehensive metrics slide featuring a main title and a responsive grid of metric cards (1-9 items) arranged in up to three columns with row dividers. Cards can be highlighted for emphasis. Each card displays a label, a prominent value, and a detail description. Ideal for comparing multiple KPIs, benchmark data, or performance metrics across categories.",
+        "json_schema": {}
+      }
+    ]
+  },
+  "standard": {
+    "name": "standard",
+    "description": "Standard layouts for presentations",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "chart-left-text-right-layout",
+        "name": "Chart Left Text Right",
+        "description": "A slide with header label, a left-side inline bar chart, and right-side title with paragraph.",
+        "json_schema": {}
+      },
+      {
+        "id": "header-left-media-contact-info-slide",
+        "name": "ContactLayout",
+        "description": "A slide with a top bar, left media with overlay and bottom bar, and right content with header and text blocks. This should only be used for contact information.",
+        "json_schema": {}
+      },
+      {
+        "id": "split-left-strip-header-title-subtitle-cards-slide",
+        "name": "Heading Bullet Image Description",
+        "description": "A slide with a left strip, top label with rule, right header, right description, floating small image, and a centered card with ...cards.",
+        "json_schema": {}
+      },
+      {
+        "id": "header-bullets-title-description-image-slide",
+        "name": "Icon Bullet Description",
+        "description": "A slide with a small header label and number, a left card of ...cards with round symbols and titles with descriptions, a large heading with supporting text, and a decorative image on a mid-page band",
+        "json_schema": {}
+      },
+      {
+        "id": "header-title-card-slide",
+        "name": "Icon Image Description",
+        "description": "A slide with a top bar, centered title, placeholder icon area, and a colored card with circular icon, heading, and paragraph",
+        "json_schema": {}
+      },
+      {
+        "id": "header-smallbar-title-team-cards-slide",
+        "name": "Image List With Description",
+        "description": "A slide with a top utility bar, centered title, and a grid of cards with names, roles, and background images.",
+        "json_schema": {}
+      },
+      {
+        "id": "header-counter-two-column-image-text-slide",
+        "name": "Intro Slide",
+        "description": "A slide with a header row containing label, separator, and counter, followed by a two-column layout with a media area and stacked text blocks. If used as the endig slide then it shoudn",
+        "json_schema": {}
+      },
+      {
+        "id": "header-tagline-cards-grid-slide",
+        "name": "Metrics Description",
+        "description": "A slide with a top utility row, a header, a tagline, and a grid of cards each with a number block and text",
+        "json_schema": {}
+      },
+      {
+        "id": "header-bullets-image-split-slide",
+        "name": "Numbered Bullet Single Image",
+        "description": "A slide with a top bar, left column with numbered bullets, middle image panel, and right stacked heading with paragraph",
+        "json_schema": {}
+      },
+      {
+        "id": "table-of-contents-layout",
+        "name": "Table Of Contents",
+        "description": "Header with brand marker, title, optional description, and a two-column table of contents list",
+        "json_schema": {}
+      },
+      {
+        "id": "visual-metrics",
+        "name": "Visual Metrics",
+        "description": "A slide with a header bar, numeric marker, title, description, and grid of cards with headings, circular metrics, and texts",
+        "json_schema": {}
+      }
+    ]
+  },
+  "swift": {
+    "name": "swift",
+    "description": "Swift layouts for presentations",
+    "ordered": false,
+    "default": false,
+    "slides": [
+      {
+        "id": "bullet-with-icons-title-description",
+        "name": "Bullet With Icons Title Description",
+        "description": "Bullet with icons with title and description and title and description for whole",
+        "json_schema": {}
+      },
+      {
+        "id": "icon-bullet-list-description-slide",
+        "name": "Icon Bullet List Description",
+        "description": "Bullet list with title, description, and icon",
+        "json_schema": {}
+      },
+      {
+        "id": "image-list-description-slide",
+        "name": "Image List Description",
+        "description": "List of Images with subtitle and description with one description for the entire page",
+        "json_schema": {}
+      },
+      {
+        "id": "IntroSlideLayout",
+        "name": "Intro Slide Layout",
+        "description": "Intro slide with header, title, subtitle, body, image. If used for last slide, then intro card should be disabled.",
+        "json_schema": {}
+      },
+      {
+        "id": "MetricsNumbers",
+        "name": "Metrics Numbers",
+        "description": "Swift: Our Impact in Numbers with three stacked metric cards",
+        "json_schema": {}
+      },
+      {
+        "id": "simple-bullet-points-layout",
+        "name": "Simple Bullet Points",
+        "description": "Bullet Points with title and description",
+        "json_schema": {}
+      },
+      {
+        "id": "SwiftTableOfContents",
+        "name": "Table Of Contents",
+        "description": "Swift: Table of contents with up to 10 items (title + description)",
+        "json_schema": {}
+      },
+      {
+        "id": "tableorChart",
+        "name": "Table Or Chart",
+        "description": "Swift: Generic data table with option to render a chart (bar, horizontalBar, line, pie)",
+        "json_schema": {}
+      },
+      {
+        "id": "Timeline",
+        "name": "Timeline",
+        "description": "Timeline of cards with title, subtitle banner",
+        "json_schema": {}
+      }
+    ]
+  }
+}

@@ -1,23 +1,12 @@
 {
   "name": "presenton",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
-  "description": "Open-source AI presentation generator",
+  "description": "Open-source AI presentation generator (FastAPI + NiceGUI)",
   "scripts": {
     "start": "node start-local.js",
     "start:uv": "node start-local.js",
     "start:pip": "node start-local.js --pip",
     "start:dev": "node start-local.js --dev"
-  },
-  "devDependencies": {
-    "electron": "^36.1.0",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@tailwindcss/cli": "^4.1.5",
-    "dotenv": "^16.5.0",
-    "electron-squirrel-startup": "^1.0.1",
-    "tailwindcss": "^4.1.5",
-    "tree-kill": "^1.2.2"
   }
 }

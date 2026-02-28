@@ -7,8 +7,3 @@ interface FastApiEnv {
   APP_DATA_DIRECTORY: string,
   TEMP_DIRECTORY: string,
 }
-
-interface NextJsEnv {
-  NEXT_PUBLIC_API: string,
-  TEMP_DIRECTORY: string,
-}

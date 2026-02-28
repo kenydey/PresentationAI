@@ -240,17 +240,37 @@ def outline_page():
         state["editors"] = []
         if not outlines:
             with outline_container:
-                ui.label("大纲为空").classes("text-gray-400 italic")
+                ui.label("大纲为空，点击下方「+添加页面」").classes("text-gray-400 italic")
             return
 
         for idx, slide in enumerate(outlines):
-            content = slide.get("content", "")
+            content = slide.get("content", "") if isinstance(slide, dict) else str(slide)
             with outline_container:
                 with ui.row().classes("items-center gap-2 w-full"):
                     ui.badge(f"{idx+1}", color="primary").classes("text-xs")
-                    ui.label(f"第 {idx+1} 页").classes("text-sm font-semibold")
+                    ui.label(f"第 {idx+1} 页").classes("text-sm font-semibold flex-1")
+                    ui.button(icon="delete", on_click=lambda i=idx: _remove_slide(i)).props("flat round dense size=sm color=negative")
                 ta = ui.textarea(value=content).props("rows=3 outlined dense").classes("w-full")
                 state["editors"].append(ta)
+
+        with outline_container:
+            ui.button("+ 添加页面", icon="add", on_click=_add_slide).props("flat dense color=primary").classes("mt-1")
+
+    def _add_slide():
+        state["editors"]  # ensure we rebuild from current editor values
+        current = [{"content": (e.value or "").strip()} for e in state["editors"]]
+        current.append({"content": ""})
+        _render_outline_editors(current)
+        ui.notify(f"已添加第 {len(current)} 页", type="info")
+
+    def _remove_slide(idx: int):
+        current = [{"content": (e.value or "").strip()} for e in state["editors"]]
+        if len(current) <= 1:
+            ui.notify("至少保留一页大纲", type="warning")
+            return
+        removed = current.pop(idx)
+        _render_outline_editors(current)
+        ui.notify(f"已删除第 {idx+1} 页", type="info")
 
     stream_btn.on_click(do_stream_outlines)
 

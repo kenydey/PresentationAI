@@ -4,13 +4,13 @@
 
 ### Project Overview
 
-PresentationAI is a Python-native AI presentation generator built on FastAPI + NiceGUI. The actual source code lives in the `PresentationAI/` directory (cloned from [presenton/presenton](https://github.com/presenton/presenton)). The main repo only contains `README.md` and a broken submodule reference — you must clone the upstream repo into `PresentationAI/` if it's not present.
+PresentationAI is a Python-native AI presentation generator built on FastAPI + NiceGUI. The repo has two copies of the backend: `servers/fastapi/` (primary, with NiceGUI and additional deps) and `PresentationAI/servers/fastapi/` (upstream snapshot from [presenton/presenton](https://github.com/presenton/presenton)). Use `servers/fastapi/` for development. The Next.js frontend at `servers/nextjs/` is legacy (README says "no longer used") but its code is still in the repo.
 
 ### Core Service: FastAPI Backend
 
-- **Location**: `PresentationAI/servers/fastapi/`
+- **Location**: `servers/fastapi/`
 - **Runtime**: Python 3.11, managed by `uv`
-- **Start command**: `cd PresentationAI/servers/fastapi && uv run python server.py --port 8000 --reload true`
+- **Start command**: `cd servers/fastapi && uv run python server.py --port 8000 --reload true`
 - **Required env vars for dev**:
   - `APP_DATA_DIRECTORY=/tmp/app_data`
   - `TEMP_DIRECTORY=/tmp/presenton`
@@ -26,7 +26,7 @@ PresentationAI is a Python-native AI presentation generator built on FastAPI + N
 ### Running Tests
 
 ```bash
-cd PresentationAI/servers/fastapi
+cd servers/fastapi
 mkdir -p debug
 APP_DATA_DIRECTORY=/tmp/app_data TEMP_DIRECTORY=/tmp/presenton \
   DATABASE_URL="sqlite+aiosqlite:////tmp/app_data/fastapi.db" \
@@ -40,8 +40,17 @@ APP_DATA_DIRECTORY=/tmp/app_data TEMP_DIRECTORY=/tmp/presenton \
 - `test_pptx_slides_processing::test_pptx_slides_processing` may fail due to LibreOffice conversion issues
 - No linter is configured in the project
 
+### Legacy Next.js Frontend
+
+- **Location**: `servers/nextjs/`
+- **Runtime**: Node.js 22+, npm (has `package-lock.json`)
+- **Dev command**: `cd servers/nextjs && npx next dev -p 3000`
+- `next build` fails with pre-existing issues (duplicate dashboard routes, missing sqlite3 module). Dev mode works fine.
+- No ESLint config is present; `next lint` prompts interactively — avoid running it.
+
 ### Gotchas
 
 - The first server startup downloads ~80MB of ChromaDB ONNX models — this is normal and takes a few seconds.
 - LLM-dependent features (outline generation, presentation content generation) require `OPENAI_API_KEY` or equivalent provider keys configured via the settings API or environment.
 - The project has no `.gitmodules` file despite having a submodule entry — the `PresentationAI` directory must be populated manually by cloning `presenton/presenton`.
+- Python 3.11 is **required** (`>=3.11,<3.12`). The VM snapshot has it installed via deadsnakes PPA. If missing, install with `sudo apt-get install -y python3.11 python3.11-venv python3.11-dev` (after adding the PPA).

@@ -9,27 +9,6 @@ from nicegui_app.api_client import api_get, api_post, api_delete
 def templates_page():
     page_layout("模板管理")
 
-    with ui.column().classes("w-full p-6 gap-4"):
-        ui.label("模板管理").classes("text-2xl font-bold")
-
-        with ui.row().classes("items-center gap-3"):
-            ui.button("刷新", icon="refresh", on_click=lambda: load_summary()).props("flat")
-
-        # 模板概要
-        with ui.card().classes("w-full"):
-            summary_label = ui.label().classes("text-gray-500")
-            template_container = ui.column().classes("w-full gap-3 mt-2")
-
-        # 查看特定演示的模板
-        with ui.card().classes("w-full"):
-            ui.label("查看演示的布局模板").classes("font-semibold mb-2")
-            with ui.row().classes("gap-3 items-center"):
-                pres_id_input = ui.input("演示 ID").classes("w-96")
-                ui.button("加载布局", icon="search", on_click=lambda: load_layouts()).props("outline")
-            layout_container = ui.column().classes("w-full gap-2 mt-2 max-h-96 overflow-auto")
-
-        log = ui.log().classes("h-24 w-full")
-
     async def load_summary():
         log.clear()
         status, data = await api_get("/api/v1/ppt/template-management/summary")
@@ -54,7 +33,7 @@ def templates_page():
                     pid = p.get("id", "")
                     if pid:
                         ui.button("删除", icon="delete",
-                                  on_click=lambda tid=pid: del_template(tid)).props("flat dense color=negative size=sm")
+                                  on_click=make_del_handler(pid)).props("flat dense color=negative size=sm")
 
         log.push(f"已加载 {len(presentations)} 个模板")
         ui.notify(f'已加载 {len(presentations)} 个模板', type='positive')
@@ -87,5 +66,31 @@ def templates_page():
             await load_summary()
         else:
             log.push(f"删除失败")
+
+    def make_del_handler(template_id):
+        async def handler():
+            await del_template(template_id)
+        return handler
+
+    with ui.column().classes("w-full p-6 gap-4"):
+        ui.label("模板管理").classes("text-2xl font-bold")
+
+        with ui.row().classes("items-center gap-3"):
+            ui.button("刷新", icon="refresh", on_click=load_summary).props("flat")
+
+        # 模板概要
+        with ui.card().classes("w-full"):
+            summary_label = ui.label().classes("text-gray-500")
+            template_container = ui.column().classes("w-full gap-3 mt-2")
+
+        # 查看特定演示的模板
+        with ui.card().classes("w-full"):
+            ui.label("查看演示的布局模板").classes("font-semibold mb-2")
+            with ui.row().classes("gap-3 items-center"):
+                pres_id_input = ui.input("演示 ID").classes("w-96")
+                ui.button("加载布局", icon="search", on_click=load_layouts).props("outline")
+            layout_container = ui.column().classes("w-full gap-2 mt-2 max-h-96 overflow-auto")
+
+        log = ui.log().classes("h-24 w-full")
 
     ui.timer(0.3, load_summary, once=True)

@@ -9,17 +9,6 @@ from nicegui_app.api_client import api_get, get_base_url
 def icons_page():
     page_layout("图标搜索")
 
-    with ui.column().classes("w-full p-6 gap-4"):
-        ui.label("图标搜索").classes("text-2xl font-bold")
-
-        with ui.row().classes("gap-3 items-center"):
-            query_input = ui.input("搜索关键词", placeholder="例如：chart, arrow, person…").classes("w-96")
-            limit_input = ui.number("数量限制", value=20, min=1, max=100).classes("w-28")
-            search_btn = ui.button("搜索", icon="search", on_click=lambda: search_icons()).props("color=primary")
-
-        results_grid = ui.row().classes("w-full flex-wrap gap-4")
-        log = ui.log().classes("h-20 w-full")
-
     async def search_icons():
         q = query_input.value.strip()
         if not q:
@@ -65,3 +54,14 @@ def icons_page():
 
         log.push(f"找到 {len(icons_list)} 个图标")
         ui.notify(f'找到 {len(icons_list)} 个图标', type='info')
+
+    with ui.column().classes("w-full p-6 gap-4"):
+        ui.label("图标搜索").classes("text-2xl font-bold")
+
+        with ui.row().classes("gap-3 items-center"):
+            query_input = ui.input("搜索关键词", placeholder="例如：chart, arrow, person…").classes("w-96")
+            limit_input = ui.number("数量限制", value=20, min=1, max=100).classes("w-28")
+            search_btn = ui.button("搜索", icon="search", on_click=search_icons).props("color=primary")
+
+        results_grid = ui.row().classes("w-full flex-wrap gap-4")
+        log = ui.log().classes("h-20 w-full")

@@ -1,29 +1,17 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Slide } from '../../types/slide';
-<<<<<<< HEAD
 import { useRef } from 'react';
-=======
-import { useState } from 'react';
->>>>>>> 78e1006 (Initial: presenton)
 
 interface SortableListItemProps {
     slide: Slide;
     index: number;
     selectedSlide: number;
-<<<<<<< HEAD
     onSlideClick: (index: any) => void;
 }
 
 export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: SortableListItemProps) {
     const lastClickTime = useRef(0);
-=======
-    onSlideClick: (index: number) => void;
-}
-
-export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: SortableListItemProps) {
-    const [mouseDownTime, setMouseDownTime] = useState(0);
->>>>>>> 78e1006 (Initial: presenton)
 
     const {
         attributes,
@@ -40,7 +28,6 @@ export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: 
         opacity: isDragging ? 0.5 : 1
     };
 
-<<<<<<< HEAD
     const handleClick = (e: React.MouseEvent) => {
         const now = Date.now();
 
@@ -52,18 +39,6 @@ export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: 
         // Only trigger click if not dragging
         if (!isDragging) {
             lastClickTime.current = now;
-=======
-    const handleMouseDown = () => {
-        setMouseDownTime(Date.now());
-    };
-
-    const handleMouseUp = () => {
-        const mouseUpTime = Date.now();
-        const timeDiff = mouseUpTime - mouseDownTime;
-
-        // If the mouse was down for less than 200ms, consider it a click
-        if (timeDiff < 200 && !isDragging) {
->>>>>>> 78e1006 (Initial: presenton)
             onSlideClick(slide.index);
         }
     };
@@ -74,7 +49,6 @@ export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: 
             style={style}
             {...attributes}
             {...listeners}
-<<<<<<< HEAD
             onClick={handleClick}
             className={`p-3 cursor-pointer ring-0 border-[3px] rounded-lg slide-box
                 ${selectedSlide === index
@@ -84,20 +58,6 @@ export function SortableListItem({ slide, index, selectedSlide, onSlideClick }: 
         >
             <span className="font-medium slide-title">Slide {index + 1}</span>
           
-=======
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            className={`p-3 cursor-pointer rounded-lg slide-box
-                ${selectedSlide === index
-                    ? 'ring-2 ring-[#5141e5] text-white'
-                    : 'hover:slide-box/40'
-                }`}
-        >
-            <span className="font-medium slide-title">Slide {index + 1}</span>
-            <p className="text-sm slide-description">
-                {slide.content.title}
-            </p>
->>>>>>> 78e1006 (Initial: presenton)
         </div>
     );
 } 

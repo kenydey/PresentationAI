@@ -1,9 +1,5 @@
 "use client";
-<<<<<<< HEAD
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-=======
-import React, { useCallback, useEffect } from "react";
->>>>>>> 78e1006 (Initial: presenton)
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,7 +8,6 @@ import {
   Maximize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-<<<<<<< HEAD
 import { Slide } from "../types/slide";
 import { V1ContentRender } from "./V1ContentRender";
 
@@ -21,29 +16,10 @@ interface PresentationModeProps {
   slides: Slide[];
   currentSlide: number;
 
-=======
-import { renderSlideContent } from "./slide_config";
-import { Slide } from "../types/slide";
-
-interface SlideContent {
-  title: string;
-  body: string | Array<{ heading: string; description: string }>;
-  description?: string;
-  image_prompts?: string[];
-  icon_queries?: Array<{ queries: string[] }>;
-}
-
-interface PresentationModeProps {
-  presentationId: string;
-  slides: Slide[];
-  currentSlide: number;
-  currentTheme: string;
->>>>>>> 78e1006 (Initial: presenton)
   isFullscreen: boolean;
   onFullscreenToggle: () => void;
   onExit: () => void;
   onSlideChange: (slideNumber: number) => void;
-<<<<<<< HEAD
 }
 
 const PresentationMode: React.FC<PresentationModeProps> = ({
@@ -51,21 +27,10 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
   slides,
   currentSlide,
 
-=======
-  language: string;
-}
-
-const PresentationMode: React.FC<PresentationModeProps> = ({
-  presentationId,
-  slides,
-  currentSlide,
-  currentTheme,
->>>>>>> 78e1006 (Initial: presenton)
   isFullscreen,
   onFullscreenToggle,
   onExit,
   onSlideChange,
-<<<<<<< HEAD
 
 
 }) => {
@@ -94,10 +59,6 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
   }, [recomputeScale]);
 
 
-=======
-  language,
-}) => {
->>>>>>> 78e1006 (Initial: presenton)
   // Modify the handleKeyPress to prevent default behavior
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -118,14 +79,11 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
           }
           break;
         case "Escape":
-<<<<<<< HEAD
           // If fullscreen is active, only exit fullscreen on first ESC. Second ESC exits present mode.
           if (document.fullscreenElement) {
             try { document.exitFullscreen(); } catch (_) { }
             return;
           }
-=======
->>>>>>> 78e1006 (Initial: presenton)
           onExit();
           break;
         case "f":
@@ -134,11 +92,7 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
           break;
       }
     },
-<<<<<<< HEAD
     [currentSlide, slides.length, onSlideChange, onExit, onFullscreenToggle, isFullscreen]
-=======
-    [currentSlide, slides.length, onSlideChange, onExit, onFullscreenToggle]
->>>>>>> 78e1006 (Initial: presenton)
   );
 
   // Add both keydown and keyup listeners
@@ -194,12 +148,8 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
 
   return (
     <div
-<<<<<<< HEAD
       className="fixed inset-0  flex flex-col"
       style={{ backgroundColor: "var(--page-background-color,#c8c7c9)" }}
-=======
-      className="fixed inset-0 bg-black flex flex-col"
->>>>>>> 78e1006 (Initial: presenton)
       tabIndex={0}
       onClick={handleSlideClick}
     >
@@ -209,10 +159,7 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
           <div className="presentation-controls absolute top-4 right-4 flex items-center gap-2 z-50">
             <Button
               variant="ghost"
-<<<<<<< HEAD
               style={{ color: "var(--text-body-color,#000000)" }}
-=======
->>>>>>> 78e1006 (Initial: presenton)
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
@@ -228,10 +175,7 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
             </Button>
             <Button
               variant="ghost"
-<<<<<<< HEAD
               style={{ color: "var(--text-body-color,#000000)" }}
-=======
->>>>>>> 78e1006 (Initial: presenton)
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
@@ -246,10 +190,7 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
           <div className="presentation-controls absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50">
             <Button
               variant="ghost"
-<<<<<<< HEAD
               style={{ color: "var(--text-body-color,#000000)" }}
-=======
->>>>>>> 78e1006 (Initial: presenton)
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
@@ -258,25 +199,16 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
               disabled={currentSlide === 0}
               className="text-white hover:bg-white/20"
             >
-<<<<<<< HEAD
               <ChevronLeft className="h-5 w-5" style={{ color: "var(--text-body-color,#000000)" }} />
             </Button>
             <span className="text-white"
               style={{ color: "var(--text-body-color,#000000)" }}
             >
-=======
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <span className="text-white">
->>>>>>> 78e1006 (Initial: presenton)
               {currentSlide + 1} / {slides.length}
             </span>
             <Button
               variant="ghost"
-<<<<<<< HEAD
               style={{ color: "var(--text-body-color,#000000)" }}
-=======
->>>>>>> 78e1006 (Initial: presenton)
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
@@ -285,17 +217,12 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
               disabled={currentSlide === slides.length - 1}
               className="text-white hover:bg-white/20"
             >
-<<<<<<< HEAD
               <ChevronRight className="h-5 w-5" style={{ color: "var(--text-body-color,#000000)" }} />
-=======
-              <ChevronRight className="h-5 w-5" />
->>>>>>> 78e1006 (Initial: presenton)
             </Button>
           </div>
         </>
       )}
 
-<<<<<<< HEAD
       {/* Slides (all mounted, only current visible) */}
       <div className={`flex-1 flex items-center justify-center ${isFullscreen ? "p-0" : "p-8"}`}>
         <div className="w-full h-full flex items-center justify-center relative" >
@@ -312,16 +239,6 @@ const PresentationMode: React.FC<PresentationModeProps> = ({
               </div>
             ))}
           </div>
-=======
-      {/* Current Slide */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div
-          className={`w-full max-w-[1280px] scale-110 aspect-video slide-theme slide-container border rounded-sm font-inter shadow-lg bg-white`}
-          data-theme={currentTheme}
-        >
-          {slides[currentSlide] &&
-            renderSlideContent(slides[currentSlide], language)}
->>>>>>> 78e1006 (Initial: presenton)
         </div>
       </div>
     </div>

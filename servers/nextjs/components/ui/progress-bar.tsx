@@ -1,9 +1,5 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react';
-<<<<<<< HEAD
-=======
-import anime from 'animejs';
->>>>>>> 78e1006 (Initial: presenton)
 
 interface ProgressBarProps {
     duration: number;
@@ -14,27 +10,8 @@ export const ProgressBar = ({ duration, onComplete }: ProgressBarProps) => {
     const [progress, setProgress] = useState(0);
     const progressInterval = useRef<NodeJS.Timeout | null>(null);
     const startTime = useRef<number>(Date.now());
-<<<<<<< HEAD
 
     useEffect(() => {
-=======
-    const progressBarRef = useRef<HTMLDivElement>(null);
-    const gradientRef = useRef<anime.AnimeInstance | null>(null);
-
-    useEffect(() => {
-        // Animate gradient
-        if (progressBarRef.current) {
-            gradientRef.current = anime({
-                targets: progressBarRef.current,
-                backgroundPosition: ['0% 50%', '100% 50%'],
-                duration: 2000,
-                loop: true,
-                direction: 'alternate',
-                easing: 'linear'
-            });
-        }
-
->>>>>>> 78e1006 (Initial: presenton)
         const updateProgress = () => {
             const currentTime = Date.now();
             const elapsedTime = currentTime - startTime.current;
@@ -64,12 +41,6 @@ export const ProgressBar = ({ duration, onComplete }: ProgressBarProps) => {
             if (progressInterval.current) {
                 clearInterval(progressInterval.current);
             }
-<<<<<<< HEAD
-=======
-            if (gradientRef.current) {
-                gradientRef.current.pause();
-            }
->>>>>>> 78e1006 (Initial: presenton)
         };
     }, [duration, onComplete]);
 
@@ -77,7 +48,6 @@ export const ProgressBar = ({ duration, onComplete }: ProgressBarProps) => {
         <div className="w-full space-y-2">
             <div className="flex justify-end items-center text-white/80 text-sm">
                 {/* <span>Processing...</span> */}
-<<<<<<< HEAD
                 <span className='font-inter  text-end font-medium text-xs'>{Math.round(progress)}%</span>
             </div>
             <div className="w-full bg-white rounded-full h-2 overflow-hidden">
@@ -105,22 +75,6 @@ export const ProgressBar = ({ duration, onComplete }: ProgressBarProps) => {
                     animation: gradient 2s linear infinite;
                 }
             `}</style>
-=======
-                <span className='font-satoshi  text-end font-medium text-xs'>{Math.round(progress)}%</span>
-            </div>
-            <div className="w-full bg-white rounded-full h-2 overflow-hidden">
-                <div
-                    ref={progressBarRef}
-                    className="h-full bg-gradient-to-r from-[#9034EA] via-[#5146E5] to-[#9034EA] rounded-full"
-                    style={{
-                        width: `${progress}%`,
-                        backgroundSize: '200% 100%',
-                        transition: 'width 0.3s ease-out'
-                    }}
-                />
-            </div>
-
->>>>>>> 78e1006 (Initial: presenton)
         </div>
     );
 }; 

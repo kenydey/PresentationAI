@@ -1,21 +1,13 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-<<<<<<< HEAD
 import { Slide } from '../../types/slide';
 import { useRef } from 'react';
 import { V1ContentRender } from '../../components/V1ContentRender';
 import { useSearchParams } from 'next/navigation';
-=======
-import { renderMiniSlideContent } from '../../components/slide_config';
-import { Slide } from '../../types/slide';
-import { useState } from 'react';
-
->>>>>>> 78e1006 (Initial: presenton)
 interface SortableSlideProps {
     slide: Slide;
     index: number;
     selectedSlide: number;
-<<<<<<< HEAD
     onSlideClick: (index: any) => void;
 }
 const SCALE = 0.2;
@@ -24,14 +16,6 @@ export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: Sor
     const searchParams = useSearchParams();
     const type = searchParams.get("type") as 'standard' | 'smart';
     const lastClickTime = useRef(0);
-=======
-    onSlideClick: (index: number) => void;
-}
-
-export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: SortableSlideProps) {
-    const [mouseDownTime, setMouseDownTime] = useState(0);
-
->>>>>>> 78e1006 (Initial: presenton)
     const {
         attributes,
         listeners,
@@ -39,16 +23,11 @@ export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: Sor
         transform,
         transition,
         isDragging
-<<<<<<< HEAD
     } = useSortable({ id: slide.id || `${slide.index}` });
-=======
-    } = useSortable({ id: slide.id! });
->>>>>>> 78e1006 (Initial: presenton)
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-<<<<<<< HEAD
         opacity: isDragging ? 0.5 : 1,
         backgroundColor: `var(--card-color, #ffffff)`,
         borderColor: selectedSlide === index ? `#5141e5` : `var(--stroke, #e5e7eb)`
@@ -65,21 +44,6 @@ export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: Sor
         // Only trigger click if not dragging
         if (!isDragging) {
             lastClickTime.current = now;
-=======
-        opacity: isDragging ? 0.5 : 1
-    };
-
-    const handleMouseDown = () => {
-        setMouseDownTime(Date.now());
-    };
-
-    const handleMouseUp = () => {
-        const mouseUpTime = Date.now();
-        const timeDiff = mouseUpTime - mouseDownTime;
-
-        // If the mouse was down for less than 200ms, consider it a click
-        if (timeDiff < 200 && !isDragging) {
->>>>>>> 78e1006 (Initial: presenton)
             onSlideClick(slide.index);
         }
     };
@@ -90,7 +54,6 @@ export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: Sor
             style={style}
             {...attributes}
             {...listeners}
-<<<<<<< HEAD
             onClick={handleClick}
             className={` cursor-pointer border-[3px] relative  p-1 shadow-lg   rounded-md transition-all duration-200 ${selectedSlide === index ? ' border-[#5141e5]' : 'border-gray-300'
                 }`}
@@ -120,16 +83,6 @@ export function SortableSlide({ slide, index, selectedSlide, onSlideClick }: Sor
                     <ContentRender slide={slide} isEditMode={true} />
                 </div>
             </div> */}
-=======
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            className={`flex justify-center items-center cursor-pointer ${selectedSlide === index
-                ? 'ring-2 ring-[#5141e5]'
-                : 'hover:ring-2 hover:ring-gray-200'
-                } rounded-lg`}
-        >
-            {renderMiniSlideContent(slide)}
->>>>>>> 78e1006 (Initial: presenton)
         </div>
     );
 } 

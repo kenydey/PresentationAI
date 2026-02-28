@@ -6,7 +6,6 @@ export interface ImageSearch {
 }
 
 export interface ImageGenerate {
-<<<<<<< HEAD
   
 
   prompt: string;
@@ -29,20 +28,3 @@ export interface PreviousGeneratedImagesResponse {
     id: string;
     path: string;
 }
-=======
-  presentation_id: string;
-  prompt: {
-    theme_prompt: string;
-    image_prompt: string;
-    aspect_ratio: string;
-  };
-}
-export interface IconSearch {
-  presentation_id: string;
-
-  query: string;
-  category?: string;
-  page: number;
-  limit: number;
-}
->>>>>>> 78e1006 (Initial: presenton)

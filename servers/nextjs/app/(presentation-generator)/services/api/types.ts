@@ -22,13 +22,10 @@ export interface ChartAssignmentResponse {
 export interface DeplotResponse {
     presentation_id: string;
     charts: ChartAssignmentResponse;
-<<<<<<< HEAD
 }
 
 export interface ImageAssetResponse {
   message:string;
   path:string;
   id:string;
-=======
->>>>>>> 78e1006 (Initial: presenton)
 }

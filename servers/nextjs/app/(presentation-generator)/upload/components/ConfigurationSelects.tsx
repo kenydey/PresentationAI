@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 78e1006 (Initial: presenton)
 import {
   Select,
   SelectContent,
@@ -9,15 +5,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-<<<<<<< HEAD
 import {  LanguageType, PresentationConfig, ToneType, VerbosityType } from "../type";
 import { useState } from "react";
 import { Check, ChevronsUpDown, SlidersHorizontal } from "lucide-react";
-=======
-import { LanguageType, PresentationConfig } from "../type";
-import { useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
->>>>>>> 78e1006 (Initial: presenton)
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -33,19 +23,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-<<<<<<< HEAD
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ToolTip from "@/components/ToolTip";
-=======
->>>>>>> 78e1006 (Initial: presenton)
 
 // Types
 interface ConfigurationSelectsProps {
   config: PresentationConfig;
-<<<<<<< HEAD
   onConfigChange: (key: keyof PresentationConfig, value: any) => void;
 }
 
@@ -53,15 +39,6 @@ type SlideOption = "5" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "
 
 // Constants
 const SLIDE_OPTIONS: SlideOption[] = ["5", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"];
-=======
-  onConfigChange: (key: keyof PresentationConfig, value: string) => void;
-}
-
-type SlideOption = "5" | "8" | "10" | "12" | "15" | "18" | "20";
-
-// Constants
-const SLIDE_OPTIONS: SlideOption[] = ["5", "8", "10", "12", "15", "18", "20"];
->>>>>>> 78e1006 (Initial: presenton)
 
 /**
  * Renders a select component for slide count
@@ -69,7 +46,6 @@ const SLIDE_OPTIONS: SlideOption[] = ["5", "8", "10", "12", "15", "18", "20"];
 const SlideCountSelect: React.FC<{
   value: string | null;
   onValueChange: (value: string) => void;
-<<<<<<< HEAD
 }> = ({ value, onValueChange }) => {
   const [customInput, setCustomInput] = useState(
     value && !SLIDE_OPTIONS.includes(value as SlideOption) ? value : ""
@@ -153,26 +129,6 @@ const SlideCountSelect: React.FC<{
     </Select>
   );
 };
-=======
-}> = ({ value, onValueChange }) => (
-  <Select value={value || ""} onValueChange={onValueChange}>
-    <SelectTrigger className="w-[180px] font-satoshi font-medium bg-blue-100 border-blue-200 focus-visible:ring-blue-300">
-      <SelectValue placeholder="Select Slides" />
-    </SelectTrigger>
-    <SelectContent className="font-satoshi">
-      {SLIDE_OPTIONS.map((option) => (
-        <SelectItem
-          key={option}
-          value={option}
-          className="font-satoshi text-sm font-medium"
-        >
-          {option} Slides
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-);
->>>>>>> 78e1006 (Initial: presenton)
 
 /**
  * Renders a language selection component with search functionality
@@ -188,15 +144,10 @@ const LanguageSelect: React.FC<{
       <Button
         variant="outline"
         role="combobox"
-<<<<<<< HEAD
         name="language"
         data-testid="language-select"
         aria-expanded={open}
         className="w-[200px] justify-between font-instrument_sans font-semibold overflow-hidden bg-blue-100 hover:bg-blue-100 border-blue-200 focus-visible:ring-blue-300 border-none"
-=======
-        aria-expanded={open}
-        className="w-[200px] justify-between font-satoshi font-semibold overflow-hidden bg-blue-100 hover:bg-blue-100 border-blue-200 focus-visible:ring-blue-300 border-none"
->>>>>>> 78e1006 (Initial: presenton)
       >
         <p className="text-sm font-medium truncate">
           {value || "Select language"}
@@ -208,11 +159,7 @@ const LanguageSelect: React.FC<{
       <Command>
         <CommandInput
           placeholder="Search language..."
-<<<<<<< HEAD
           className="font-instrument_sans"
-=======
-          className="font-satoshi"
->>>>>>> 78e1006 (Initial: presenton)
         />
         <CommandList>
           <CommandEmpty>No language found.</CommandEmpty>
@@ -221,19 +168,12 @@ const LanguageSelect: React.FC<{
               <CommandItem
                 key={language}
                 value={language}
-<<<<<<< HEAD
                 role="option"
-=======
->>>>>>> 78e1006 (Initial: presenton)
                 onSelect={(currentValue) => {
                   onValueChange(currentValue);
                   onOpenChange(false);
                 }}
-<<<<<<< HEAD
                 className="font-instrument_sans"
-=======
-                className="font-satoshi"
->>>>>>> 78e1006 (Initial: presenton)
               >
                 <Check
                   className={cn(
@@ -256,7 +196,6 @@ export function ConfigurationSelects({
   onConfigChange,
 }: ConfigurationSelectsProps) {
   const [openLanguage, setOpenLanguage] = useState(false);
-<<<<<<< HEAD
   const [openAdvanced, setOpenAdvanced] = useState(false);
 
   const [advancedDraft, setAdvancedDraft] = useState({
@@ -294,11 +233,6 @@ export function ConfigurationSelects({
 
   return (
     <div className="flex flex-wrap order-1 gap-4 items-center">
-=======
-
-  return (
-    <div className="flex flex-wrap order-1 gap-4">
->>>>>>> 78e1006 (Initial: presenton)
       <SlideCountSelect
         value={config.slides}
         onValueChange={(value) => onConfigChange("slides", value)}
@@ -309,7 +243,6 @@ export function ConfigurationSelects({
         open={openLanguage}
         onOpenChange={setOpenLanguage}
       />
-<<<<<<< HEAD
       <ToolTip content="Advanced settings">
 
       <button
@@ -426,8 +359,6 @@ export function ConfigurationSelects({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-=======
->>>>>>> 78e1006 (Initial: presenton)
     </div>
   );
 }

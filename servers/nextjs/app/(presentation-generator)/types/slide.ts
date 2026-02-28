@@ -32,10 +32,7 @@ export interface Slide {
   icons: string[] | null;
   graph_id: string | null;
   presentation?: string;
-<<<<<<< HEAD
   speaker_note?: string;
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
   content: SlideContent;
 }

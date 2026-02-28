@@ -10,6 +10,19 @@ from models.user_config import OpenAICompatibleProviderConfig, UserConfig
 from utils.user_config import get_user_config, update_env_with_user_config
 
 PROVIDERS = {"openai": "OpenAI", "google": "Google", "anthropic": "Anthropic", "ollama": "Ollama", "custom": "自定义 (OpenAI Compatible)"}
+IMAGE_PROVIDERS = {"dall-e-3": "DALL-E 3", "gpt-image-1.5": "GPT Image 1.5", "gemini_flash": "Gemini Flash", "pexels": "Pexels", "pixabay": "Pixabay", "comfyui": "ComfyUI"}
+COMPAT_OPTIONS = {"deepseek": "DeepSeek", "kimi": "Kimi", "qwen": "Qwen", "custom": "自定义"}
+
+
+def _norm_select_value(val: str | None, options: dict) -> str | None:
+    """将配置值规范化为 options 的 key，支持大小写模糊匹配。"""
+    if not val or not isinstance(val, str):
+        return None
+    val = val.strip().lower()
+    for k, v in options.items():
+        if k.lower() == val or (isinstance(v, str) and v.lower() == val):
+            return k
+    return val if val in options else (list(options.keys())[0] if options else None)
 
 
 @ui.page("/settings")
@@ -18,96 +31,6 @@ def settings_page():
 
     can_change = get_can_change_keys_env() != "false"
     config_path = get_user_config_path_env()
-
-    with ui.column().classes("w-full p-6 gap-4"):
-        ui.label("LLM 与图像提供商配置").classes("text-2xl font-bold")
-        if not can_change:
-            ui.label("当前部署禁止修改配置 (CAN_CHANGE_KEYS=false)").classes("text-red-500")
-            return
-
-        with ui.row().classes("w-full gap-6 items-start flex-wrap"):
-            # ── 左栏: LLM 配置 ──
-            with ui.card().classes("flex-1 min-w-[450px]"):
-                ui.label("LLM 基础配置").classes("font-semibold mb-2")
-                llm_provider = ui.select(PROVIDERS, label="默认 LLM 提供商").classes("w-72")
-                default_model = ui.input("默认模型（可选）").classes("w-full")
-
-                with ui.expansion("任务级别模型", icon="tune").classes("w-full"):
-                    outline_prov = ui.select(PROVIDERS, label="大纲提供商").classes("w-64")
-                    outline_mod = ui.input("大纲模型").classes("w-full")
-                    content_prov = ui.select(PROVIDERS, label="内容提供商").classes("w-64")
-                    content_mod = ui.input("内容模型").classes("w-full")
-                    notes_prov = ui.select(PROVIDERS, label="讲稿提供商").classes("w-64")
-                    notes_mod = ui.input("讲稿模型").classes("w-full")
-                    research_prov = ui.select(PROVIDERS, label="研究提供商").classes("w-64")
-                    research_mod = ui.input("研究模型").classes("w-full")
-
-                with ui.expansion("OpenAI", icon="smart_toy").classes("w-full"):
-                    oai_key = ui.input("API Key").props("type=password").classes("w-full")
-                    oai_model = ui.input("模型 (如 gpt-4.1)").classes("w-full")
-                    oai_check = ui.button("检测可用模型", on_click=lambda: check_openai()).props("flat dense")
-                    oai_models_label = ui.label().classes("text-xs text-gray-400")
-
-                with ui.expansion("Google Gemini", icon="psychology").classes("w-full"):
-                    google_key = ui.input("API Key").props("type=password").classes("w-full")
-                    google_model = ui.input("模型 (如 gemini-2.0-flash)").classes("w-full")
-
-                with ui.expansion("Anthropic", icon="auto_awesome").classes("w-full"):
-                    ant_key = ui.input("API Key").props("type=password").classes("w-full")
-                    ant_model = ui.input("模型 (如 claude-3-5-sonnet)").classes("w-full")
-
-                with ui.expansion("Ollama (本地)", icon="computer").classes("w-full"):
-                    ollama_url = ui.input("URL (如 http://localhost:11434)").classes("w-full")
-                    ollama_model = ui.input("模型 (如 llama3.2:3b)").classes("w-full")
-
-                with ui.expansion("自定义 OpenAI Compatible", icon="extension").classes("w-full"):
-                    compat_active = ui.select({"deepseek": "DeepSeek", "kimi": "Kimi", "qwen": "Qwen", "custom": "自定义"}, label="当前厂商", value="custom").classes("w-64")
-                    for name in ["DeepSeek", "Kimi", "Qwen", "自定义"]:
-                        ui.label(name).classes("text-sm font-semibold mt-2")
-                    ds_url = ui.input("DeepSeek URL").classes("w-full")
-                    ds_key = ui.input("DeepSeek Key").props("type=password").classes("w-full")
-                    ds_model = ui.input("DeepSeek 模型").classes("w-full")
-                    kimi_url = ui.input("Kimi URL").classes("w-full")
-                    kimi_key = ui.input("Kimi Key").props("type=password").classes("w-full")
-                    kimi_model = ui.input("Kimi 模型").classes("w-full")
-                    qwen_url = ui.input("Qwen URL").classes("w-full")
-                    qwen_key = ui.input("Qwen Key").props("type=password").classes("w-full")
-                    qwen_model = ui.input("Qwen 模型").classes("w-full")
-                    cust_url = ui.input("自定义 URL").classes("w-full")
-                    cust_key = ui.input("自定义 Key").props("type=password").classes("w-full")
-                    cust_model = ui.input("自定义模型").classes("w-full")
-
-            # ── 右栏: 图像与高级 ──
-            with ui.card().classes("w-80"):
-                ui.label("图像配置").classes("font-semibold mb-2")
-                disable_img = ui.checkbox("禁用图像生成")
-                img_provider = ui.select(
-                    {"dall-e-3": "DALL-E 3", "gpt-image-1.5": "GPT Image 1.5", "gemini_flash": "Gemini Flash", "pexels": "Pexels", "pixabay": "Pixabay", "comfyui": "ComfyUI"},
-                    label="图像提供商",
-                ).classes("w-full")
-                pexels_key = ui.input("Pexels Key").props("type=password").classes("w-full")
-                pixabay_key = ui.input("Pixabay Key").props("type=password").classes("w-full")
-
-                with ui.expansion("ComfyUI", icon="brush").classes("w-full"):
-                    comfy_url = ui.input("ComfyUI URL").classes("w-full")
-                    comfy_wf = ui.textarea("Workflow JSON").props("rows=3").classes("w-full")
-
-                with ui.expansion("图像质量").classes("w-full"):
-                    dalle_q = ui.input("DALL-E 3 质量 (standard/hd)").classes("w-full")
-                    gpt_img_q = ui.input("GPT Image 1.5 质量 (low/medium/high)").classes("w-full")
-
-                ui.label("高级选项").classes("font-semibold mt-4 mb-2")
-                tool_calls = ui.checkbox("启用工具调用")
-                disable_think = ui.checkbox("禁用思考")
-                extended_reason = ui.checkbox("扩展推理")
-                web_ground = ui.checkbox("联网检索")
-
-        # ── 操作按钮 ──
-        with ui.row().classes("gap-3"):
-            ui.button("保存配置", icon="save", on_click=lambda: save_config()).props("color=primary")
-            ui.button("重新加载", icon="refresh", on_click=lambda: load_config()).props("flat")
-        log = ui.log().classes("h-28 w-full")
-        result_label = ui.label().classes("text-green-600")
 
     async def check_openai():
         key = oai_key.value
@@ -128,15 +51,15 @@ def settings_page():
             log.push(f"加载失败: {e}")
             ui.notify('配置加载失败', type='negative')
             return
-        llm_provider.value = cfg.default_llm_provider or cfg.LLM or None
+        llm_provider.value = _norm_select_value(cfg.default_llm_provider or cfg.LLM, PROVIDERS)
         default_model.value = cfg.default_llm_model or ""
-        outline_prov.value = cfg.outline_provider or None
+        outline_prov.value = _norm_select_value(cfg.outline_provider, PROVIDERS)
         outline_mod.value = cfg.outline_model or ""
-        content_prov.value = cfg.content_provider or None
+        content_prov.value = _norm_select_value(cfg.content_provider, PROVIDERS)
         content_mod.value = cfg.content_model or ""
-        notes_prov.value = cfg.notes_provider or None
+        notes_prov.value = _norm_select_value(cfg.notes_provider, PROVIDERS)
         notes_mod.value = cfg.speaker_notes_model or ""
-        research_prov.value = cfg.research_provider or None
+        research_prov.value = _norm_select_value(cfg.research_provider, PROVIDERS)
         research_mod.value = cfg.research_model or ""
         oai_key.value = cfg.OPENAI_API_KEY or ""
         oai_model.value = cfg.OPENAI_MODEL or ""
@@ -147,7 +70,7 @@ def settings_page():
         ollama_url.value = cfg.OLLAMA_URL or ""
         ollama_model.value = cfg.OLLAMA_MODEL or ""
         profiles = cfg.openai_compatible_configs or {}
-        compat_active.value = cfg.active_openai_compatible or "custom"
+        compat_active.value = _norm_select_value(cfg.active_openai_compatible, COMPAT_OPTIONS) or "custom"
         dsc = profiles.get("deepseek")
         if dsc: ds_url.value, ds_key.value, ds_model.value = dsc.base_url or "", dsc.api_key or "", dsc.default_model or ""
         kc = profiles.get("kimi")
@@ -159,7 +82,7 @@ def settings_page():
         cust_key.value = (cc.api_key if cc else None) or cfg.CUSTOM_LLM_API_KEY or ""
         cust_model.value = (cc.default_model if cc else None) or cfg.CUSTOM_MODEL or ""
         disable_img.value = bool(cfg.DISABLE_IMAGE_GENERATION)
-        img_provider.value = cfg.IMAGE_PROVIDER or None
+        img_provider.value = _norm_select_value(cfg.IMAGE_PROVIDER, IMAGE_PROVIDERS)
         pexels_key.value = cfg.PEXELS_API_KEY or ""
         pixabay_key.value = cfg.PIXABAY_API_KEY or ""
         comfy_url.value = cfg.COMFYUI_URL or ""
@@ -227,5 +150,93 @@ def settings_page():
         result_label.set_text("配置已保存!")
         ui.notify('配置保存成功', type='positive')
         log.push(f"写入 {path}")
+
+    with ui.column().classes("w-full p-6 gap-4"):
+        ui.label("LLM 与图像提供商配置").classes("text-2xl font-bold")
+        if not can_change:
+            ui.label("当前部署禁止修改配置 (CAN_CHANGE_KEYS=false)").classes("text-red-500")
+            return
+
+        with ui.row().classes("w-full gap-6 items-start flex-wrap"):
+            # ── 左栏: LLM 配置 ──
+            with ui.card().classes("flex-1 min-w-[450px]"):
+                ui.label("LLM 基础配置").classes("font-semibold mb-2")
+                llm_provider = ui.select(PROVIDERS, label="默认 LLM 提供商").classes("w-72")
+                default_model = ui.input("默认模型（可选）").classes("w-full")
+
+                with ui.expansion("任务级别模型", icon="tune").classes("w-full"):
+                    outline_prov = ui.select(PROVIDERS, label="大纲提供商").classes("w-64")
+                    outline_mod = ui.input("大纲模型").classes("w-full")
+                    content_prov = ui.select(PROVIDERS, label="内容提供商").classes("w-64")
+                    content_mod = ui.input("内容模型").classes("w-full")
+                    notes_prov = ui.select(PROVIDERS, label="讲稿提供商").classes("w-64")
+                    notes_mod = ui.input("讲稿模型").classes("w-full")
+                    research_prov = ui.select(PROVIDERS, label="研究提供商").classes("w-64")
+                    research_mod = ui.input("研究模型").classes("w-full")
+
+                with ui.expansion("OpenAI", icon="smart_toy").classes("w-full"):
+                    oai_key = ui.input("API Key").props("type=password").classes("w-full")
+                    oai_model = ui.input("模型 (如 gpt-4.1)").classes("w-full")
+                    oai_check = ui.button("检测可用模型", on_click=check_openai).props("flat dense")
+                    oai_models_label = ui.label().classes("text-xs text-gray-400")
+
+                with ui.expansion("Google Gemini", icon="psychology").classes("w-full"):
+                    google_key = ui.input("API Key").props("type=password").classes("w-full")
+                    google_model = ui.input("模型 (如 gemini-2.0-flash)").classes("w-full")
+
+                with ui.expansion("Anthropic", icon="auto_awesome").classes("w-full"):
+                    ant_key = ui.input("API Key").props("type=password").classes("w-full")
+                    ant_model = ui.input("模型 (如 claude-3-5-sonnet)").classes("w-full")
+
+                with ui.expansion("Ollama (本地)", icon="computer").classes("w-full"):
+                    ollama_url = ui.input("URL (如 http://localhost:11434)").classes("w-full")
+                    ollama_model = ui.input("模型 (如 llama3.2:3b)").classes("w-full")
+
+                with ui.expansion("自定义 OpenAI Compatible", icon="extension").classes("w-full"):
+                    compat_active = ui.select(COMPAT_OPTIONS, value="custom", label="当前厂商").classes("w-64")
+                    for name in ["DeepSeek", "Kimi", "Qwen", "自定义"]:
+                        ui.label(name).classes("text-sm font-semibold mt-2")
+                    ds_url = ui.input("DeepSeek URL").classes("w-full")
+                    ds_key = ui.input("DeepSeek Key").props("type=password").classes("w-full")
+                    ds_model = ui.input("DeepSeek 模型").classes("w-full")
+                    kimi_url = ui.input("Kimi URL").classes("w-full")
+                    kimi_key = ui.input("Kimi Key").props("type=password").classes("w-full")
+                    kimi_model = ui.input("Kimi 模型").classes("w-full")
+                    qwen_url = ui.input("Qwen URL").classes("w-full")
+                    qwen_key = ui.input("Qwen Key").props("type=password").classes("w-full")
+                    qwen_model = ui.input("Qwen 模型").classes("w-full")
+                    cust_url = ui.input("自定义 URL").classes("w-full")
+                    cust_key = ui.input("自定义 Key").props("type=password").classes("w-full")
+                    cust_model = ui.input("自定义模型").classes("w-full")
+
+            # ── 右栏: 图像与高级 ──
+            with ui.card().classes("w-80"):
+                ui.label("图像配置").classes("font-semibold mb-2")
+                disable_img = ui.checkbox("禁用图像生成")
+                img_provider = ui.select(IMAGE_PROVIDERS, label="图像提供商").classes("w-full")
+                pexels_key = ui.input("Pexels Key").props("type=password").classes("w-full")
+                pixabay_key = ui.input("Pixabay Key").props("type=password").classes("w-full")
+
+                with ui.expansion("ComfyUI", icon="brush").classes("w-full"):
+                    comfy_url = ui.input("ComfyUI URL").classes("w-full")
+                    comfy_wf = ui.textarea("Workflow JSON").props("rows=3").classes("w-full")
+
+                with ui.expansion("图像质量").classes("w-full"):
+                    dalle_q = ui.input("DALL-E 3 质量 (standard/hd)").classes("w-full")
+                    gpt_img_q = ui.input("GPT Image 1.5 质量 (low/medium/high)").classes("w-full")
+
+                ui.label("高级选项").classes("font-semibold mt-4 mb-2")
+                tool_calls = ui.checkbox("启用工具调用")
+                disable_think = ui.checkbox("禁用思考")
+                extended_reason = ui.checkbox("扩展推理")
+                web_ground = ui.checkbox("联网检索")
+
+        log = ui.log().classes("h-28 w-full")
+        result_label = ui.label().classes("text-green-600")
+
+        # ── 操作按钮 ──
+        with ui.row().classes("gap-3"):
+            ui.button("保存配置", icon="save", on_click=save_config).props("color=primary")
+            ui.button("重新加载", icon="refresh", on_click=load_config).props("flat")
 
     ui.timer(0.2, load_config, once=True)

@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "presenton",
   "version": "1.0.1",
   "type": "module",
@@ -9,31 +8,10 @@
     "start:uv": "node start-local.js",
     "start:pip": "node start-local.js --pip",
     "start:dev": "node start-local.js --dev"
-  }
-}
-=======
-  "name": "presenton_open_source",
-  "main": "dist/main.js",
-  "version": "0.0.0",
-  "description": "Presenton Open Source",
-  "scripts": {
-    "dev": "tsc && electron --gtk-version=3 .",
-    "start": "tsc && electron-forge start",
-    "package": "tsc && electron-forge package",
-    "make": "tsc && electron-forge make",
-    "setup:env": "cd servers/fastapi && poetry env remove --all && poetry install",
-    "build:ts": "tsc",
-    "build:css": "tailwindcss -i ./resources/ui/assets/tailwind.import.css -o ./resources/ui/assets/tailwind.css",
-    "build:nextjs": "rm -rf resources/nextjs && mkdir -p resources/nextjs && cd servers/nextjs && npm run build && cp -r .next ../../resources/nextjs",
-    "build:fastapi": "rm -rf resources/fastapi && cd servers/fastapi && .venv/bin/pyinstaller --name fastapi --distpath ../../resources server.py",
-    "clean:build": "rm -rf resources/nextjs && rm -rf resources/fastapi"
   },
   "devDependencies": {
     "electron": "^36.1.0",
     "typescript": "^5.8.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.5",
@@ -43,4 +21,3 @@
     "tree-kill": "^1.2.2"
   }
 }
->>>>>>> 78e1006 (Initial: presenton)

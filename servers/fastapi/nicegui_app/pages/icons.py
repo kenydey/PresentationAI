@@ -35,6 +35,7 @@ def icons_page():
 
         if status != 200:
             log.push(f"搜索失败: {data}")
+            ui.notify('搜索失败', type='negative')
             return
 
         icons_list = data if isinstance(data, list) else data.get("icons", []) if isinstance(data, dict) else []
@@ -63,3 +64,4 @@ def icons_page():
                     ui.label(name[:20]).classes("text-xs text-gray-600 text-center truncate w-full")
 
         log.push(f"找到 {len(icons_list)} 个图标")
+        ui.notify(f'找到 {len(icons_list)} 个图标', type='info')

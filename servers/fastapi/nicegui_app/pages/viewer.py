@@ -30,12 +30,15 @@ def viewer_page(id: str = ""):
                 slide_meta = ui.label().classes("text-xs text-gray-400")
 
                 with ui.tabs().classes("w-full") as tabs:
-                    tab_content = ui.tab("内容")
+                    tab_preview = ui.tab("预览")
+                    tab_content = ui.tab("字段")
                     tab_html = ui.tab("HTML")
-                    tab_raw = ui.tab("原始 JSON")
+                    tab_raw = ui.tab("JSON")
                     tab_note = ui.tab("讲稿")
 
-                with ui.tab_panels(tabs, value=tab_content).classes("w-full"):
+                with ui.tab_panels(tabs, value=tab_preview).classes("w-full"):
+                    with ui.tab_panel(tab_preview):
+                        preview_display = ui.column().classes("w-full")
                     with ui.tab_panel(tab_content):
                         content_display = ui.column().classes("w-full gap-2")
                     with ui.tab_panel(tab_html):
@@ -62,6 +65,7 @@ def viewer_page(id: str = ""):
         status, data = await api_get(f"/api/v1/ppt/presentation/{pid}")
         if status != 200:
             log.push(f"加载失败: {data}")
+            ui.notify('加载失败', type='negative')
             return
         slides = data.get("slides", [])
         state["slides"] = slides
@@ -76,6 +80,7 @@ def viewer_page(id: str = ""):
                 ).props("flat dense align=left").classes("w-full text-left")
 
         log.push(f"已加载 {len(slides)} 页幻灯片")
+        ui.notify(f'已加载 {len(slides)} 页幻灯片', type='positive')
         if slides:
             show_slide(0)
 
@@ -87,9 +92,64 @@ def viewer_page(id: str = ""):
         slide_title.set_text(f"第 {idx+1} 页 — {s.get('layout', '')}")
         slide_meta.set_text(f"ID: {s.get('id', '')}  |  布局组: {s.get('layout_group', '')}  |  索引: {s.get('index', '')}")
 
-        # content tab
-        content_display.clear()
+        # preview tab — visual card
+        preview_display.clear()
         content = s.get("content", {})
+        if isinstance(content, dict) and content:
+            with preview_display:
+                with ui.card().classes("w-full bg-white shadow-lg rounded-xl p-8").style("aspect-ratio: 16/9; max-width: 800px;"):
+                    _t = content.get("title") or content.get("heading") or content.get("headline") or ""
+                    if _t:
+                        ui.label(str(_t)).classes("text-2xl font-bold text-gray-800 mb-2")
+                    _sub = content.get("subtitle") or content.get("subheading") or content.get("presenterName") or ""
+                    if _sub:
+                        ui.label(str(_sub)).classes("text-sm text-gray-500 mb-3")
+                    _desc = content.get("description") or content.get("text") or content.get("content") or ""
+                    if _desc:
+                        ui.label(str(_desc)).classes("text-sm text-gray-600 mb-3")
+                    _quote = content.get("quote") or ""
+                    if _quote:
+                        ui.label(f'"{_quote}"').classes("text-lg italic text-[#6C63FF] border-l-4 border-[#6C63FF] pl-4 my-3")
+                    _bullets = content.get("bullets") or content.get("items") or content.get("points") or content.get("bulletPoints") or []
+                    if isinstance(_bullets, list) and _bullets:
+                        with ui.column().classes("gap-1 mt-2"):
+                            for b in _bullets[:8]:
+                                txt = b if isinstance(b, str) else b.get("text", "") or b.get("title", "") or str(b)
+                                desc = b.get("description", "") if isinstance(b, dict) else ""
+                                with ui.row().classes("items-start gap-2"):
+                                    ui.icon("circle").classes("text-[#6C63FF] text-[8px] mt-1.5")
+                                    with ui.column().classes("gap-0"):
+                                        ui.label(str(txt)).classes("text-sm font-medium")
+                                        if desc:
+                                            ui.label(str(desc)).classes("text-xs text-gray-400")
+                    _metrics = content.get("metrics") or content.get("stats") or content.get("numbers") or []
+                    if isinstance(_metrics, list) and _metrics:
+                        with ui.row().classes("gap-6 mt-4"):
+                            for m in _metrics[:6]:
+                                if isinstance(m, dict):
+                                    with ui.column().classes("items-center"):
+                                        ui.label(str(m.get("value", "") or m.get("number", ""))).classes("text-2xl font-bold text-[#6C63FF]")
+                                        ui.label(str(m.get("label", "") or m.get("title", ""))).classes("text-xs text-gray-500")
+                    _sections = content.get("sections") or content.get("tableOfContents") or []
+                    if isinstance(_sections, list) and _sections:
+                        with ui.column().classes("gap-1 mt-2"):
+                            for i, sec in enumerate(_sections):
+                                txt = sec if isinstance(sec, str) else sec.get("title", "") or str(sec)
+                                ui.label(f"{i+1}. {txt}").classes("text-sm text-gray-700")
+                    _img = content.get("image") or content.get("backgroundImage") or {}
+                    img_url = ""
+                    if isinstance(_img, dict):
+                        img_url = _img.get("__image_url__") or _img.get("url") or ""
+                    elif isinstance(_img, str):
+                        img_url = _img
+                    if img_url:
+                        ui.image(img_url).classes("w-full max-h-48 object-cover rounded mt-3")
+        else:
+            with preview_display:
+                ui.label("暂无内容数据").classes("text-gray-400 italic")
+
+        # content tab (field list)
+        content_display.clear()
         if isinstance(content, dict):
             for key, val in content.items():
                 with content_display:
@@ -133,8 +193,10 @@ def viewer_page(id: str = ""):
         status, data = await api_post("/api/v1/ppt/slide/edit", {"id": sid, "prompt": prompt_text})
         if status != 200:
             log.push(f"编辑失败: {data}")
+            ui.notify('编辑失败', type='negative')
             return
         log.push("编辑成功，重新加载…")
+        ui.notify('编辑成功', type='positive')
         await load_pres()
 
     if id:

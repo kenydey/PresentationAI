@@ -31,9 +31,11 @@ def images_page():
                     status, data = await api_post_form("/api/v1/ppt/images/upload", fd)
                     if status == 200:
                         log.push(f"上传成功: {data}")
+                        ui.notify('图片上传成功', type='positive')
                         await load_images()
                     else:
                         log.push(f"上传失败: {data}")
+                        ui.notify('图片上传失败', type='negative')
 
                 ui.upload(on_upload=handle_upload, auto_upload=True).props(
                     "accept='image/*' flat bordered"
@@ -68,8 +70,10 @@ def images_page():
         gen_btn.props(remove="disable loading")
         if status != 200:
             log.push(f"生成失败: {data}")
+            ui.notify('图片生成失败', type='negative')
             return
         log.push(f"生成成功")
+        ui.notify('图片生成成功', type='positive')
         gen_result.clear()
         url = data.get("url", "") or data.get("path", "") if isinstance(data, dict) else str(data)
         if url:
@@ -115,6 +119,7 @@ def images_page():
         status, _ = await api_delete(f"/api/v1/ppt/images/{img_id}")
         if status in (200, 204):
             log.push(f"已删除 {img_id}")
+            ui.notify('图片已删除', type='positive')
         else:
             log.push(f"删除失败")
         await load_images()

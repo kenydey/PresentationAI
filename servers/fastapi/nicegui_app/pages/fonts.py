@@ -24,9 +24,11 @@ def fonts_page():
                     status, data = await api_post_form("/api/v1/ppt/fonts/upload", fd)
                     if status == 200:
                         log.push(f"上传成功: {data}")
+                        ui.notify('字体上传成功', type='positive')
                         await load_fonts()
                     else:
                         log.push(f"上传失败: {data}")
+                        ui.notify('字体上传失败', type='negative')
 
                 ui.upload(on_upload=handle_upload, auto_upload=True).props(
                     "accept='.ttf,.otf,.woff,.woff2' flat bordered"
@@ -71,6 +73,7 @@ def fonts_page():
         status, _ = await api_delete(f"/api/v1/ppt/fonts/delete/{filename}")
         if status in (200, 204):
             log.push(f"已删除 {filename}")
+            ui.notify('字体已删除', type='positive')
         else:
             log.push(f"删除失败")
         await load_fonts()

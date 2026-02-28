@@ -144,6 +144,7 @@ def outline_page():
         if status != 200:
             detail = created.get("detail", created) if isinstance(created, dict) else created
             stream_log.push(f"✗ 创建失败 (HTTP {status}): {detail}")
+            ui.notify(f'创建失败: {detail}', type='negative')
             stream_btn.props(remove="disable loading")
             stream_status.set_text("创建失败")
             return
@@ -152,6 +153,7 @@ def outline_page():
         state["pid"] = pid
         pid_label.set_text(str(pid)[:12] + "…")
         stream_log.push(f"✓ 演示已创建 ID = {pid}")
+        ui.notify('演示创建成功', type='positive')
 
         # 2) GET /outlines/stream/{id} (SSE)
         stream_status.set_text("正在流式生成大纲…")
@@ -166,6 +168,7 @@ def outline_page():
                     if resp.status != 200:
                         text = await resp.text()
                         stream_log.push(f"✗ SSE 连接失败 (HTTP {resp.status}): {text[:200]}")
+                        ui.notify('SSE 连接失败', type='negative')
                         stream_btn.props(remove="disable loading")
                         stream_status.set_text("SSE 连接失败")
                         return
@@ -203,6 +206,7 @@ def outline_page():
                             elif evt_type == "error":
                                 detail = data.get("detail", "")
                                 stream_log.push(f"✗ [错误] {detail}")
+                                ui.notify(f'大纲生成出错: {detail}', type='negative')
                                 stream_status.set_text("生成出错")
                                 stream_btn.props(remove="disable loading")
                                 return
@@ -219,12 +223,14 @@ def outline_page():
 
                                 _render_outline_editors(outlines)
                                 stream_log.push(f"✓ 大纲生成完成，共 {len(outlines)} 页")
+                                ui.notify(f'大纲生成完成，共 {len(outlines)} 页', type='positive')
                                 stream_status.set_text(f"大纲完成 ({len(outlines)} 页)")
                                 stream_btn.props(remove="disable loading")
                                 return
 
         except Exception as e:
             stream_log.push(f"✗ SSE 异常: {e}")
+            ui.notify('SSE 连接异常', type='negative')
             stream_status.set_text("SSE 连接异常")
 
         stream_btn.props(remove="disable loading")
@@ -234,17 +240,37 @@ def outline_page():
         state["editors"] = []
         if not outlines:
             with outline_container:
-                ui.label("大纲为空").classes("text-gray-400 italic")
+                ui.label("大纲为空，点击下方「+添加页面」").classes("text-gray-400 italic")
             return
 
         for idx, slide in enumerate(outlines):
-            content = slide.get("content", "")
+            content = slide.get("content", "") if isinstance(slide, dict) else str(slide)
             with outline_container:
                 with ui.row().classes("items-center gap-2 w-full"):
                     ui.badge(f"{idx+1}", color="primary").classes("text-xs")
-                    ui.label(f"第 {idx+1} 页").classes("text-sm font-semibold")
+                    ui.label(f"第 {idx+1} 页").classes("text-sm font-semibold flex-1")
+                    ui.button(icon="delete", on_click=lambda i=idx: _remove_slide(i)).props("flat round dense size=sm color=negative")
                 ta = ui.textarea(value=content).props("rows=3 outlined dense").classes("w-full")
                 state["editors"].append(ta)
+
+        with outline_container:
+            ui.button("+ 添加页面", icon="add", on_click=_add_slide).props("flat dense color=primary").classes("mt-1")
+
+    def _add_slide():
+        state["editors"]  # ensure we rebuild from current editor values
+        current = [{"content": (e.value or "").strip()} for e in state["editors"]]
+        current.append({"content": ""})
+        _render_outline_editors(current)
+        ui.notify(f"已添加第 {len(current)} 页", type="info")
+
+    def _remove_slide(idx: int):
+        current = [{"content": (e.value or "").strip()} for e in state["editors"]]
+        if len(current) <= 1:
+            ui.notify("至少保留一页大纲", type="warning")
+            return
+        removed = current.pop(idx)
+        _render_outline_editors(current)
+        ui.notify(f"已删除第 {idx+1} 页", type="info")
 
     stream_btn.on_click(do_stream_outlines)
 
@@ -298,11 +324,13 @@ def outline_page():
         if status != 200:
             detail = data.get("detail", data) if isinstance(data, dict) else data
             prepare_log.push(f"✗ 保存失败 (HTTP {status}): {detail}")
+            ui.notify(f'保存失败: {detail}', type='negative')
             prepare_status.set_text("保存失败")
             return
 
         state["presentation_data"] = data
         prepare_log.push("✓ 大纲与布局已保存到后端!")
+        ui.notify('大纲保存成功', type='positive')
         new_title = data.get("title", "")
         if new_title:
             prepare_log.push(f"  标题: {new_title}")
@@ -333,12 +361,14 @@ def outline_page():
         if status != 200:
             detail = data.get("detail", data) if isinstance(data, dict) else data
             prepare_log.push(f"✗ 导出失败 (HTTP {status}): {detail}")
+            ui.notify(f'导出失败: {detail}', type='negative')
             prepare_status.set_text("导出失败")
             return
 
         path = data.get("path", "")
         edit_path = data.get("edit_path", "")
         prepare_log.push(f"✓ 导出成功!")
+        ui.notify('导出成功', type='positive')
         if path:
             prepare_log.push(f"  文件: {path}")
         if edit_path:

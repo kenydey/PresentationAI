@@ -15,6 +15,8 @@ from api.v1.ppt.endpoints.ollama import OLLAMA_ROUTER
 from api.v1.ppt.endpoints.outlines import OUTLINES_ROUTER
 from api.v1.ppt.endpoints.slide import SLIDE_ROUTER
 from api.v1.ppt.endpoints.layouts import LAYOUTS_ROUTER
+from api.v1.ppt.endpoints.config import CONFIG_ROUTER
+from api.v1.ppt.endpoints.theme import THEME_ROUTER, FOOTER_ROUTER
 from api.v1.ppt.endpoints.pptx_slides import PPTX_FONTS_ROUTER
 
 
@@ -38,4 +40,7 @@ API_V1_PPT_ROUTER.include_router(OPENAI_ROUTER)
 API_V1_PPT_ROUTER.include_router(ANTHROPIC_ROUTER)
 API_V1_PPT_ROUTER.include_router(GOOGLE_ROUTER)
 API_V1_PPT_ROUTER.include_router(LAYOUTS_ROUTER)
+API_V1_PPT_ROUTER.include_router(CONFIG_ROUTER)
+API_V1_PPT_ROUTER.include_router(THEME_ROUTER)
+API_V1_PPT_ROUTER.include_router(FOOTER_ROUTER)
 API_V1_PPT_ROUTER.include_router(PPTX_FONTS_ROUTER)

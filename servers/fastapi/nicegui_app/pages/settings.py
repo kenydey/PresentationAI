@@ -126,6 +126,7 @@ def settings_page():
             cfg = get_user_config()
         except Exception as e:
             log.push(f"加载失败: {e}")
+            ui.notify('配置加载失败', type='negative')
             return
         llm_provider.value = cfg.default_llm_provider or cfg.LLM or None
         default_model.value = cfg.default_llm_model or ""
@@ -170,6 +171,7 @@ def settings_page():
         extended_reason.value = bool(cfg.EXTENDED_REASONING)
         web_ground.value = bool(cfg.WEB_GROUNDING)
         log.push(f"配置已加载 ({config_path})")
+        ui.notify('配置已加载', type='positive')
 
     async def save_config():
         log.clear()
@@ -216,12 +218,14 @@ def settings_page():
                 json.dump(merged.model_dump(), f, ensure_ascii=False)
         except Exception as e:
             log.push(f"保存失败: {e}")
+            ui.notify('配置保存失败', type='negative')
             return
         try:
             update_env_with_user_config()
         except Exception:
             pass
         result_label.set_text("配置已保存!")
+        ui.notify('配置保存成功', type='positive')
         log.push(f"写入 {path}")
 
     ui.timer(0.2, load_config, once=True)

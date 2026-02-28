@@ -20,5 +20,5 @@ import nicegui_app.templates.standard_chart_left  # noqa: F401
 def create_nicegui_app() -> FastAPI:
     """Create the NiceGUI ASGI app to be mounted under /ui."""
     app = FastAPI()
-    ui.run_with(app)
+    ui.run_with(app, mount_path="/ui")
     return app

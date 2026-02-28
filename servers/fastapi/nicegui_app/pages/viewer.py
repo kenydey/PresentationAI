@@ -3,6 +3,8 @@
 from nicegui import ui, app
 from nicegui_app.layout import page_layout
 from nicegui_app.api_client import api_get, api_post, api_patch
+from nicegui_app.utils.slide_preview_data import slide_to_preview_data
+from nicegui_app.components.slide_preview import render_slide_preview_html
 import json
 
 
@@ -49,63 +51,12 @@ def viewer_page(id: str = ""):
         slide_title.set_text(f"第 {idx+1} 页 — {s.get('layout', '')}")
         slide_meta.set_text(f"ID: {s.get('id', '')}  |  布局组: {s.get('layout_group', '')}  |  索引: {s.get('index', '')}")
 
-        # preview tab — visual card
-        preview_display.clear()
-        content = s.get("content", {})
-        if isinstance(content, dict) and content:
-            with preview_display:
-                with ui.card().classes("w-full bg-white shadow-lg rounded-xl p-8").style("aspect-ratio: 16/9; max-width: 800px;"):
-                    _t = content.get("title") or content.get("heading") or content.get("headline") or ""
-                    if _t:
-                        ui.label(str(_t)).classes("text-2xl font-bold text-gray-800 mb-2")
-                    _sub = content.get("subtitle") or content.get("subheading") or content.get("presenterName") or ""
-                    if _sub:
-                        ui.label(str(_sub)).classes("text-sm text-gray-500 mb-3")
-                    _desc = content.get("description") or content.get("text") or content.get("content") or ""
-                    if _desc:
-                        ui.label(str(_desc)).classes("text-sm text-gray-600 mb-3")
-                    _quote = content.get("quote") or ""
-                    if _quote:
-                        ui.label(f'"{_quote}"').classes("text-lg italic text-[#6C63FF] border-l-4 border-[#6C63FF] pl-4 my-3")
-                    _bullets = content.get("bullets") or content.get("items") or content.get("points") or content.get("bulletPoints") or []
-                    if isinstance(_bullets, list) and _bullets:
-                        with ui.column().classes("gap-1 mt-2"):
-                            for b in _bullets[:8]:
-                                txt = b if isinstance(b, str) else b.get("text", "") or b.get("title", "") or str(b)
-                                desc = b.get("description", "") if isinstance(b, dict) else ""
-                                with ui.row().classes("items-start gap-2"):
-                                    ui.icon("circle").classes("text-[#6C63FF] text-[8px] mt-1.5")
-                                    with ui.column().classes("gap-0"):
-                                        ui.label(str(txt)).classes("text-sm font-medium")
-                                        if desc:
-                                            ui.label(str(desc)).classes("text-xs text-gray-400")
-                    _metrics = content.get("metrics") or content.get("stats") or content.get("numbers") or []
-                    if isinstance(_metrics, list) and _metrics:
-                        with ui.row().classes("gap-6 mt-4"):
-                            for m in _metrics[:6]:
-                                if isinstance(m, dict):
-                                    with ui.column().classes("items-center"):
-                                        ui.label(str(m.get("value", "") or m.get("number", ""))).classes("text-2xl font-bold text-[#6C63FF]")
-                                        ui.label(str(m.get("label", "") or m.get("title", ""))).classes("text-xs text-gray-500")
-                    _sections = content.get("sections") or content.get("tableOfContents") or []
-                    if isinstance(_sections, list) and _sections:
-                        with ui.column().classes("gap-1 mt-2"):
-                            for i, sec in enumerate(_sections):
-                                txt = sec if isinstance(sec, str) else sec.get("title", "") or str(sec)
-                                ui.label(f"{i+1}. {txt}").classes("text-sm text-gray-700")
-                    _img = content.get("image") or content.get("backgroundImage") or {}
-                    img_url = ""
-                    if isinstance(_img, dict):
-                        img_url = _img.get("__image_url__") or _img.get("url") or ""
-                    elif isinstance(_img, str):
-                        img_url = _img
-                    if img_url:
-                        ui.image(img_url).classes("w-full max-h-48 object-cover rounded mt-3")
-        else:
-            with preview_display:
-                ui.label("暂无内容数据").classes("text-gray-400 italic")
+        # preview tab — 基于 PresentationState 的实时预览（无刷新更新）
+        preview_data = slide_to_preview_data(s)
+        preview_html.content = render_slide_preview_html(preview_data)
 
         # content tab (field list)
+        content = s.get("content", {}) or {}
         content_display.clear()
         if isinstance(content, dict):
             for key, val in content.items():
@@ -183,7 +134,13 @@ def viewer_page(id: str = ""):
 
                 with ui.tab_panels(tabs, value=tab_preview).classes("w-full"):
                     with ui.tab_panel(tab_preview):
-                        preview_display = ui.column().classes("w-full")
+                        _empty_html = (
+                            '<div class="flex items-center justify-center w-full min-h-[320px] '
+                            'bg-gray-100 text-gray-400 rounded-xl">选择幻灯片以预览</div>'
+                        )
+                        preview_html = ui.html(_empty_html, sanitize=False).classes(
+                            "w-full overflow-hidden rounded-xl shadow-lg bg-white"
+                        ).style("aspect-ratio: 16/9; max-width: 800px;")
                     with ui.tab_panel(tab_content):
                         content_display = ui.column().classes("w-full gap-2")
                     with ui.tab_panel(tab_html):

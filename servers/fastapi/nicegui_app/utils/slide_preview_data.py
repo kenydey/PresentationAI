@@ -97,6 +97,46 @@ def slide_to_preview_data(slide: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def slide_state_to_preview_data(
+    slide: Dict[str, Any],
+    image_url: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    将 SlideState（或 PresentationState.slides 中的项）转为 SlidePreviewData。
+    用于 Vibe 编辑后的预览渲染。
+
+    Args:
+        slide: SlideState 或同结构字典，含 title, bullet_points, image_prompt, layout_id
+        image_url: 可选，从原 slides 按 index 保留的图片 URL
+
+    Returns:
+        SlidePreviewData
+    """
+    title = str(slide.get("title") or "无标题").strip()[:200]
+    bullets = slide.get("bullet_points") or slide.get("bullets") or []
+    if not isinstance(bullets, list):
+        bullets = []
+    bullet_points = [str(b)[:150] for b in bullets[:8]]
+    image_prompt = slide.get("image_prompt") or ""
+    image_prompt = str(image_prompt).strip() if image_prompt else None
+    layout_id = slide.get("layout_id") or slide.get("layout") or "basic-info-slide"
+    if not isinstance(layout_id, str):
+        layout_id = "basic-info-slide"
+    subtitle = slide.get("subtitle")
+    subtitle = str(subtitle).strip() if subtitle else None
+    if image_url:
+        image_url = _safe_image_url(image_url) if isinstance(image_url, str) else None
+
+    return {
+        "title": title or "无标题",
+        "subtitle": subtitle,
+        "bullet_points": bullet_points,
+        "image_prompt": image_prompt,
+        "image_url": image_url,
+        "layout_id": layout_id,
+    }
+
+
 def _safe_image_url(url: str) -> Optional[str]:
     """校验图片 URL，避免 javascript: 等危险协议。"""
     if not url or not isinstance(url, str):

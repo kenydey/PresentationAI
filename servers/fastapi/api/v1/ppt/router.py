@@ -19,6 +19,7 @@ from api.v1.ppt.endpoints.config import CONFIG_ROUTER
 from api.v1.ppt.endpoints.theme import THEME_ROUTER, FOOTER_ROUTER
 from api.v1.ppt.endpoints.auth import AUTH_ROUTER
 from api.v1.ppt.endpoints.pptx_slides import PPTX_FONTS_ROUTER
+from api.v1.ppt.endpoints.vibe import VIBE_ROUTER
 
 
 API_V1_PPT_ROUTER = APIRouter(prefix="/api/v1/ppt")
@@ -46,3 +47,4 @@ API_V1_PPT_ROUTER.include_router(THEME_ROUTER)
 API_V1_PPT_ROUTER.include_router(FOOTER_ROUTER)
 API_V1_PPT_ROUTER.include_router(AUTH_ROUTER)
 API_V1_PPT_ROUTER.include_router(PPTX_FONTS_ROUTER)
+API_V1_PPT_ROUTER.include_router(VIBE_ROUTER)

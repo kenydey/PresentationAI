@@ -13,11 +13,11 @@ def index_page():
         ui.label("开源 AI 演示文稿生成器 · NiceGUI 前端").classes("text-gray-500 text-lg")
         ui.separator().classes("w-96 my-2")
         with ui.row().classes("gap-4 flex-wrap justify-center"):
-            with ui.link(target="/ui/create"):
+            with ui.link(target="/create"):
                 ui.button("创建演示文稿", icon="add_circle").props("color=primary size=lg")
-            with ui.link(target="/ui/dashboard"):
+            with ui.link(target="/dashboard"):
                 ui.button("查看仪表板", icon="dashboard").props("outline size=lg")
-            with ui.link(target="/ui/settings"):
+            with ui.link(target="/settings"):
                 ui.button("系统设置", icon="settings").props("outline size=lg")
 
         with ui.card().classes("w-full max-w-2xl mt-6"):

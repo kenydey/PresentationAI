@@ -3,16 +3,16 @@
 from nicegui import ui
 
 NAV_ITEMS = [
-    ("home",       "首页",         "/ui/"),
-    ("dashboard",  "仪表板",       "/ui/dashboard"),
-    ("add_circle", "创建演示",     "/ui/create"),
-    ("list_alt",   "大纲编辑",     "/ui/outline"),
-    ("slideshow",  "演示查看",     "/ui/viewer"),
-    ("image",      "图片管理",     "/ui/images"),
-    ("text_fields","字体管理",     "/ui/fonts"),
-    ("widgets",    "模板管理",     "/ui/templates"),
-    ("search",     "图标搜索",     "/ui/icons"),
-    ("settings",   "系统设置",     "/ui/settings"),
+    ("home",       "首页",         "/"),
+    ("dashboard",  "仪表板",       "/dashboard"),
+    ("add_circle", "创建演示",     "/create"),
+    ("list_alt",   "大纲编辑",     "/outline"),
+    ("slideshow",  "演示查看",     "/viewer"),
+    ("image",      "图片管理",     "/images"),
+    ("text_fields","字体管理",     "/fonts"),
+    ("widgets",    "模板管理",     "/templates"),
+    ("search",     "图标搜索",     "/icons"),
+    ("settings",   "系统设置",     "/settings"),
 ]
 
 

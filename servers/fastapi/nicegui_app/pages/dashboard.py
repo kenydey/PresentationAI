@@ -15,7 +15,7 @@ def dashboard_page():
             ui.label("所有演示文稿").classes("text-2xl font-bold")
             with ui.row().classes("gap-2"):
                 ui.button("刷新", icon="refresh", on_click=lambda: load()).props("flat")
-                with ui.link(target="/ui/create"):
+                with ui.link(target="/create"):
                     ui.button("新建", icon="add").props("color=primary")
 
         table = ui.table(
@@ -63,7 +63,7 @@ def dashboard_page():
 
     def _open_viewer():
         if state["selected"]:
-            ui.navigate.to(f'/ui/viewer?id={state["selected"]["id"]}')
+            ui.navigate.to(f'/viewer?id={state["selected"]["id"]}')
         else:
             log.push("请先选择一条演示文稿")
 

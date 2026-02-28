@@ -1,0 +1,1 @@
+export const localhost = "http://0.0.0.0"

@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+<<<<<<< HEAD
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+=======
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+>>>>>>> 78e1006 (Initial: presenton)
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+<<<<<<< HEAD
+    "moduleResolution": "bundler",
+=======
+    "moduleResolution": "node",
+>>>>>>> 78e1006 (Initial: presenton)
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+<<<<<<< HEAD
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next-build/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+=======
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+>>>>>>> 78e1006 (Initial: presenton)
+}

@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  presenton:
+    build: .
+    ports:
+      - "5000:80"
+    volumes:
+      - ./app_data:/app_data
+    environment:
+      - APP_DATA_DIRECTORY=/app_data
+      - TEMP_DIRECTORY=/tmp/presenton
+      - DATABASE_URL=sqlite+aiosqlite:////app_data/presenton.db
+      - USER_CONFIG_PATH=/app_data/userConfig.json
+      - CAN_CHANGE_KEYS=true
+      - DISABLE_ANONYMOUS_TRACKING=true
+      # LLM keys (uncomment and fill in)
+      # - OPENAI_API_KEY=sk-xxx
+      # - GOOGLE_API_KEY=xxx
+      # - ANTHROPIC_API_KEY=xxx
+    restart: unless-stopped

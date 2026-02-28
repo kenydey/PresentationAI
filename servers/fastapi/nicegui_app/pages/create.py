@@ -200,10 +200,11 @@ def create_page():
                 log.push(f"  编辑链接: {edit_path}")
             result_label.set_text("演示文稿已生成!")
             ui.notify('演示文稿生成成功', type='positive')
-            if path:
+            if path and pid:
+                fmt = export_as.value or "pptx"
                 base = get_base_url()
-                url = path if path.startswith("http") else base + ("/" if not path.startswith("/") else "") + path
-                ui.run_javascript(f'window.open("{url}", "_blank")')
+                download_url = f"{base}/api/v1/ppt/presentation/{pid}/export/download?format={fmt}"
+                ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
         # ────────────── 同步生成 ──────────────
         async def do_generate():

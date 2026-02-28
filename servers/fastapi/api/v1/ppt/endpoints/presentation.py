@@ -7,8 +7,8 @@ import random
 import traceback
 from typing import Annotated, List, Literal, Optional, Tuple
 import dirtyjson
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Path
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Path, Query
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -38,7 +38,10 @@ from utils.get_layout_by_name import get_layout_by_name
 from services.image_generation_service import ImageGenerationService
 from utils.dict_utils import deep_update
 from utils.export_utils import export_presentation
-from utils.llm_calls.generate_presentation_outlines import generate_ppt_outline
+from agents.research_agent import research_agent_run
+from agents.design_agent import design_agent_run
+from utils.state_mapper import presentation_state_to_outline_and_structure
+from utils.llm_calls.generate_presentation_structure import generate_presentation_structure
 from models.sql.slide import SlideModel
 from models.sse_response import SSECompleteResponse, SSEErrorResponse, SSEResponse
 
@@ -50,10 +53,8 @@ from services.pptx_presentation_creator import PptxPresentationCreator
 from models.sql.async_presentation_generation_status import (
     AsyncPresentationGenerationTaskModel,
 )
+from pathvalidate import sanitize_filename
 from utils.asset_directory_utils import get_exports_directory, get_images_directory
-from utils.llm_calls.generate_presentation_structure import (
-    generate_presentation_structure,
-)
 from utils.llm_calls.generate_slide_content import (
     get_slide_content_from_type_and_outline,
 )
@@ -445,6 +446,50 @@ async def export_presentation_as_pptx_or_pdf(
     )
 
 
+@PRESENTATION_ROUTER.get("/{id}/export/download")
+async def download_export(
+    id: Annotated[uuid.UUID, Path(description="Presentation ID")],
+    format: Annotated[Literal["pptx", "pdf"], Query(alias="format")] = "pptx",
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """将导出的 PPTX/PDF 以文件流形式返回，供用户安全下载。"""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+
+    exports_dir = get_exports_directory()
+    safe_name = sanitize_filename(presentation.title or str(id)) + (".pptx" if format == "pptx" else ".pdf")
+    path = os.path.join(exports_dir, safe_name)
+
+    if not os.path.isfile(path):
+        result = await export_presentation(
+            id,
+            presentation.title or str(uuid.uuid4()),
+            format,
+            sql_session=sql_session,
+        )
+        path = result.path
+    if not path or not os.path.isfile(path):
+        raise HTTPException(status_code=500, detail="Export file not found")
+
+    exports_dir = os.path.abspath(get_exports_directory())
+    abs_path = os.path.abspath(path)
+    if not abs_path.startswith(exports_dir):
+        raise HTTPException(status_code=403, detail="Invalid export path")
+
+    safe_name = os.path.basename(path)
+    media_type = (
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        if format == "pptx"
+        else "application/pdf"
+    )
+    return FileResponse(
+        path=abs_path,
+        filename=safe_name,
+        media_type=media_type,
+    )
+
+
 async def check_if_api_request_is_valid(
     request: GeneratePresentationRequest,
     sql_session: AsyncSession = Depends(get_async_session),
@@ -501,6 +546,8 @@ async def generate_presentation_handler(
             using_slides_markdown = True
             request.n_slides = len(request.slides_markdown)
 
+        presentation_title_override: Optional[str] = None
+
         if not using_slides_markdown:
             additional_context = ""
 
@@ -533,41 +580,45 @@ async def generate_presentation_handler(
                     (request.n_slides - needed_toc_count) / 10
                 )
 
-            presentation_outlines_text = ""
-            async for chunk in generate_ppt_outline(
-                request.content,
-                n_slides_to_generate,
-                request.language,
-                additional_context,
-                request.tone.value,
-                request.verbosity.value,
-                request.instructions,
-                request.include_title_slide,
-                request.web_search,
-            ):
+            # RESEARCH_AGENT + DESIGN_AGENT 流程
+            presentation_state = await research_agent_run(
+                content=request.content,
+                n_slides=n_slides_to_generate,
+                language=request.language,
+                additional_context=additional_context,
+                tone=request.tone.value,
+                verbosity=request.verbosity.value,
+                instructions=request.instructions,
+                include_title_slide=request.include_title_slide,
+                web_search=request.web_search,
+            )
 
-                if isinstance(chunk, HTTPException):
-                    raise chunk
+            if async_status:
+                async_status.message = "Selecting layout for each slide"
+                async_status.updated_at = datetime.now()
+                sql_session.add(async_status)
+                await sql_session.commit()
 
-                presentation_outlines_text += chunk
+            layout_model = await get_layout_by_name(request.template)
 
-            try:
-                presentation_outlines_json = dict(
-                    dirtyjson.loads(presentation_outlines_text)
-                )
-            except Exception:
-                traceback.print_exc()
-                raise HTTPException(
-                    status_code=400,
-                    detail="Failed to generate presentation outlines. Please try again.",
-                )
-            presentation_outlines = PresentationOutlineModel(
-                **presentation_outlines_json
+            presentation_state = await design_agent_run(
+                state=presentation_state,
+                layout_group=request.template,
+                instructions=request.instructions,
+            )
+
+            (
+                presentation_outlines,
+                presentation_structure,
+                presentation_title_override,
+            ) = presentation_state_to_outline_and_structure(
+                presentation_state,
+                layout_model,
             )
             total_outlines = n_slides_to_generate
 
         else:
-            # Setting outlines to slides markdown
+            # Setting outlines to slides markdown（沿用旧流程）
             presentation_outlines = PresentationOutlineModel(
                 slides=[
                     SlideOutlineModel(content=slide)
@@ -576,32 +627,26 @@ async def generate_presentation_handler(
             )
             total_outlines = len(request.slides_markdown)
 
-        # Updating async status
-        if async_status:
-            async_status.message = "Selecting layout for each slide"
-            async_status.updated_at = datetime.now()
-            sql_session.add(async_status)
-            await sql_session.commit()
+            if async_status:
+                async_status.message = "Selecting layout for each slide"
+                async_status.updated_at = datetime.now()
+                sql_session.add(async_status)
+                await sql_session.commit()
 
-        print("-" * 40)
-        print(f"Generated {total_outlines} outlines for the presentation")
-
-        # Parse Layouts
-        layout_model = await get_layout_by_name(request.template)
-        total_slide_layouts = len(layout_model.slides)
-
-        # Generate Structure
-        if layout_model.ordered:
-            presentation_structure = layout_model.to_presentation_structure()
-        else:
-            presentation_structure: PresentationStructureModel = (
-                await generate_presentation_structure(
+            layout_model = await get_layout_by_name(request.template)
+            if layout_model.ordered:
+                presentation_structure = layout_model.to_presentation_structure()
+            else:
+                presentation_structure = await generate_presentation_structure(
                     presentation_outlines,
                     layout_model,
                     request.instructions,
                     using_slides_markdown,
                 )
-            )
+
+        print("-" * 40)
+        print(f"Generated {total_outlines} outlines for the presentation")
+        total_slide_layouts = len(layout_model.slides)
 
         presentation_structure.slides = presentation_structure.slides[:total_outlines]
         for index in range(total_outlines):
@@ -655,7 +700,10 @@ async def generate_presentation_handler(
             content=request.content,
             n_slides=request.n_slides,
             language=request.language,
-            title=get_presentation_title_from_outlines(presentation_outlines),
+            title=(
+                presentation_title_override
+                or get_presentation_title_from_outlines(presentation_outlines)
+            ),
             outlines=presentation_outlines.model_dump(),
             layout=layout_model.model_dump(),
             structure=presentation_structure.model_dump(),

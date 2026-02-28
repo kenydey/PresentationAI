@@ -104,6 +104,7 @@ class PptxObjectFitModel(BaseModel):
 class PptxPictureModel(BaseModel):
     is_network: bool
     path: str
+    remove_background: bool = False
 
 
 class PptxShapeModel(BaseModel):

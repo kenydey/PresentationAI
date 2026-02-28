@@ -59,8 +59,8 @@ def dashboard_page():
         log.push(f"导出成功: {path}")
         ui.notify("导出成功", type="positive")
         from nicegui_app.api_client import get_base_url
-        url = path if path.startswith("http") else get_base_url() + ("/" if not path.startswith("/") else "") + path
-        ui.run_javascript(f'window.open("{url}", "_blank")')
+        download_url = f"{get_base_url()}/api/v1/ppt/presentation/{pid}/export/download?format={fmt}"
+        ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
     async def _delete():
         if not state["selected"]:

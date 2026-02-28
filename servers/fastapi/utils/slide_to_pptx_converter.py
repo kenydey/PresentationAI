@@ -77,11 +77,11 @@ def _multi_para(x, y, w, h, lines, size=14, color="555555", bullet_prefix="• "
     )
 
 
-def _img(x, y, w, h, url):
+def _img(x, y, w, h, url, remove_background: bool = False):
     is_net = url.startswith("http://") or url.startswith("https://")
     return PptxPictureBoxModel(
         position=PptxPositionModel(x=x, y=y, width=w, height=h),
-        picture=PptxPictureModel(path=url, is_network=is_net),
+        picture=PptxPictureModel(path=url, is_network=is_net, remove_background=remove_background),
     )
 
 
@@ -140,7 +140,8 @@ def _convert(content: dict, idx: int) -> list:
             url = _extract_image_url(val)
             if url:
                 img_w, img_h = 400, 280
-                shapes.append(_img(W - img_w - PAD, 160, img_w, img_h, url))
+                remove_bg = key in ("backgroundImage",) or low == "backgroundimage"
+                shapes.append(_img(W - img_w - PAD, 160, img_w, img_h, url, remove_background=remove_bg))
                 has_image = True
             continue
 
@@ -151,7 +152,7 @@ def _convert(content: dict, idx: int) -> list:
                 for i, img in enumerate(val[:4]):
                     url = _extract_image_url(img)
                     if url:
-                        shapes.append(_img(PAD + i * (per_w + 20), y_cursor, per_w, 200, url))
+                        shapes.append(_img(PAD + i * (per_w + 20), y_cursor, per_w, 200, url, remove_background=True))
                 y_cursor += 220
             continue
 

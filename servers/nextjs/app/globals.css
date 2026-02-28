@@ -2,16 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
 
 body {
   font-family: var(--font-inter), var(--font-roboto), sans-serif;
-=======
-@import '../app/(presentation-generator)/styles/themes.css';
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 @layer utilities {
@@ -48,10 +41,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -81,16 +71,11 @@ body {
 }
 
 @layer base {
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 78e1006 (Initial: presenton)
   body {
     @apply bg-background text-foreground;
   }
 }
-<<<<<<< HEAD
 
 strong {
   @apply font-black;
@@ -98,11 +83,6 @@ strong {
 
 
 
-=======
-strong{
-  @apply font-black ;
-}
->>>>>>> 78e1006 (Initial: presenton)
 ::selection {
   background-color: hsl(var(--chart-1));
   color: white;
@@ -119,7 +99,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-<<<<<<< HEAD
 thead,
 tbody tr {
   display: table;
@@ -131,15 +110,6 @@ tbody tr {
 thead {
   width: calc(100% - 1em)
     /* scrollbar is average 1em/16px width, remove it from thead width */
-=======
-thead, tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;/* even columns width , fix width of table too*/
-}
-thead {
-    width: calc( 100% - 1em )/* scrollbar is average 1em/16px width, remove it from thead width */
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 /* Add this to your global CSS or a specific CSS module */
@@ -147,17 +117,13 @@ thead {
   from {
     width: 0;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
   to {
     width: 100%;
   }
 }
 
 .typing-effect {
-<<<<<<< HEAD
   overflow: hidden;
   /* Ensures the text is hidden until revealed */
   white-space: nowrap;
@@ -191,45 +157,19 @@ thead {
   50% {
     opacity: 0;
   }
-=======
-  overflow: hidden; /* Ensures the text is hidden until revealed */
-  white-space: nowrap; /* Prevents text from wrapping */
-  display: inline-block; /* Ensures the width is respected */
-  animation: typing 2s steps(10, end); /* Adjust duration and steps for effect */
-  animation-fill-mode: forwards; /* Retain the final state of the animation */
-  animation-delay: 1s; /* Optional: delay before starting the animation */
-}
-
-.typing-effect-complete {
-  border-right: none; /* Remove the cursor after animation */
-}
-.blinking-cursor {
-    animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-    from, to { opacity: 1; }
-    50% { opacity: 0; }
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 .hide-scrollbar::-webkit-scrollbar {
   @apply hidden;
 }
-<<<<<<< HEAD
 
 .hide-scrollbar {
   -ms-overflow-style: none;
-=======
-.hide-scrollbar {
-    -ms-overflow-style: none;
->>>>>>> 78e1006 (Initial: presenton)
   scrollbar-width: none;
 }
 
 
 .custom_scrollbar::-webkit-scrollbar {
-<<<<<<< HEAD
   width: 6px;
 }
 
@@ -247,39 +187,22 @@ thead {
 .custom_scrollbar::-webkit-scrollbar-track {
   background-color: #f9fafb;
   border-radius: 8px;
-=======
-  width: 8px;
-}
-
-.custom_scrollbar::-webkit-scrollbar-thumb {
-  background-color: #4A90E2;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.custom_scrollbar::-webkit-scrollbar-track {
-  background-color: #F0F0F0;
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 .custom_scrollbar::-webkit-scrollbar-corner {
   background-color: transparent;
 }
 
-<<<<<<< HEAD
 /* Firefox scrollbar styling */
 .custom_scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f9fafb;
 }
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
 
 /* word animation */
 
 @keyframes slideUp {
-<<<<<<< HEAD
   0% {
     transform: translateY(0);
   }
@@ -305,44 +228,14 @@ thead {
 
 .animate-slideDown {
   animation: slideDown 20s linear infinite;
-=======
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(-50%);
-    }
-}
-
-@keyframes slideDown {
-    0% {
-        transform: translateY(-50%);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
-
-.animate-slideUp {
-    animation: slideUp 20s linear infinite;
-}
-
-.animate-slideDown {
-    animation: slideDown 20s linear infinite;
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 /* Add hover pause */
 .animate-slideUp:hover,
 .animate-slideDown:hover {
-<<<<<<< HEAD
   animation-play-state: paused;
 }
 
-=======
-    animation-play-state: paused;
-}
->>>>>>> 78e1006 (Initial: presenton)
 /*  box animation */
 
 .research-mode-bg {
@@ -370,26 +263,19 @@ thead {
     height: 0;
     opacity: 0.8;
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
   100% {
     width: 200%;
     height: 200%;
     opacity: 1;
   }
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
 /* Markdown Styles */
 .markdown-content {
   @apply prose prose-slate max-w-none;
 }
 
-<<<<<<< HEAD
 /* .markdown-content h1 {
   @apply text-xl font-bold mb-4 text-gray-900;
 }
@@ -412,18 +298,6 @@ thead {
 
 .markdown-content h6 {
   @apply text-xs font-semibold mb-1 text-gray-900;
-=======
-.markdown-content h1 {
-  @apply text-3xl font-bold mb-6 text-gray-900;
-}
-
-.markdown-content h2 {
-  @apply text-2xl font-bold mb-4 text-gray-900;
-}
-
-.markdown-content h3 {
-  @apply text-xl font-bold mb-3 text-gray-900;
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 .markdown-content p {
@@ -477,7 +351,6 @@ thead {
 
 .markdown-content td {
   @apply border border-gray-300 px-4 py-2;
-<<<<<<< HEAD
 } */
 
 /* Override Tailwind Typography prose heading sizes for markdown editor */
@@ -521,8 +394,6 @@ thead {
   font-weight: 600 !important;
   margin-bottom: 0.25rem !important;
   color: rgb(17 24 39) !important;
-=======
->>>>>>> 78e1006 (Initial: presenton)
 }
 
 /* MDXEditor styles */
@@ -540,11 +411,7 @@ thead {
 
 .mdxeditor-button[data-active=true] {
   @apply bg-gray-100;
-<<<<<<< HEAD
 }
-=======
-} 
->>>>>>> 78e1006 (Initial: presenton)
 
 /* tippy-box  */
 .tippy-box {
@@ -559,7 +426,6 @@ thead {
   pointer-events: none;
 }
 
-<<<<<<< HEAD
 /* code editor */
 .container_editor_area {
   tab-size: 4ch;
@@ -652,8 +518,3 @@ thead {
 .token.entity {
   cursor: help;
 }
-=======
-
-
-
->>>>>>> 78e1006 (Initial: presenton)

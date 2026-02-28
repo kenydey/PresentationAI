@@ -12,10 +12,6 @@ export const getHeaderForFormData = () => {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-<<<<<<< HEAD
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
-=======
-    "Access-Control-Allow-Headers": "Authorization",
->>>>>>> 78e1006 (Initial: presenton)
   };
 };

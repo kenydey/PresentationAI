@@ -1,21 +1,14 @@
 "use client";
 
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 
 import { marked } from "marked";
 
-=======
-import React from "react";
-
-import { marked } from "marked";
->>>>>>> 78e1006 (Initial: presenton)
 interface MarkdownRendererProps {
   content: string;
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
-<<<<<<< HEAD
   const [markdownContent, setMarkdownContent] = useState<string>("");
 
   useEffect(() => {
@@ -32,9 +25,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     parseMarkdown();
   }, [content]);
 
-=======
-  const markdownContent = marked.parse(content);
->>>>>>> 78e1006 (Initial: presenton)
   return (
     <div
       className="prose prose-slate max-w-none mb-10"

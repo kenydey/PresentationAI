@@ -11,8 +11,4 @@ interface TextFrameProps {
   content: string;
   position: { x: number; y: number };
   // Add other properties as needed
-<<<<<<< HEAD
 }
-=======
-} 
->>>>>>> 78e1006 (Initial: presenton)

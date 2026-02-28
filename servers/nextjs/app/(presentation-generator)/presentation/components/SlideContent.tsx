@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 import React, { useEffect, useState, useMemo } from "react";
 import { Loader2, PlusIcon, Trash2, WandSparkles, StickyNote } from "lucide-react";
-=======
-import React, { useEffect, useState } from "react";
-import { Slide } from "../../types/slide";
-import { renderSlideContent } from "../../components/slide_config";
-import { Loader2, PlusIcon, Trash2, WandSparkles } from "lucide-react";
->>>>>>> 78e1006 (Initial: presenton)
 import {
   Popover,
   PopoverContent,
@@ -14,16 +7,11 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { SendHorizontal } from "lucide-react";
-<<<<<<< HEAD
 import { toast } from "sonner";
-=======
-import { toast } from "@/hooks/use-toast";
->>>>>>> 78e1006 (Initial: presenton)
 import { PresentationGenerationApi } from "../../services/api/presentation-generation";
 import ToolTip from "@/components/ToolTip";
 import { RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
-<<<<<<< HEAD
 import {
   deletePresentationSlide,
   updateSlide,
@@ -41,28 +29,6 @@ interface SlideContentProps {
 }
 
 const SlideContent = ({ slide, index, presentationId }: SlideContentProps) => {
-=======
-import { addSlide, updateSlide } from "@/store/slices/presentationGeneration";
-import NewSlide from "../../components/slide_layouts/NewSlide";
-import { getEmptySlideContent } from "../../utils/NewSlideContent";
-
-interface SlideContentProps {
-  slide: Slide;
-  index: number;
-
-  presentationId: string;
-
-  onDeleteSlide: (index: number) => void;
-}
-
-const SlideContent = ({
-  slide,
-  index,
-
-  presentationId,
-  onDeleteSlide,
-}: SlideContentProps) => {
->>>>>>> 78e1006 (Initial: presenton)
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
   const [showNewSlideSelection, setShowNewSlideSelection] = useState(false);
@@ -70,73 +36,41 @@ const SlideContent = ({
     (state: RootState) => state.presentationGeneration
   );
 
-<<<<<<< HEAD
   // Use the centralized group layouts hook
 
   const pathname = usePathname();
 
-=======
->>>>>>> 78e1006 (Initial: presenton)
   const handleSubmit = async () => {
     const element = document.getElementById(
       `slide-${slide.index}-prompt`
     ) as HTMLInputElement;
     const value = element?.value;
     if (!value?.trim()) {
-<<<<<<< HEAD
       toast.error("Please enter a prompt before submitting");
-=======
-      toast({
-        title: "Error",
-        description: "Please enter a prompt before submitting",
-        variant: "destructive",
-      });
->>>>>>> 78e1006 (Initial: presenton)
       return;
     }
     setIsUpdating(true);
 
     try {
-<<<<<<< HEAD
       trackEvent(MixpanelEvent.Slide_Edit_API_Call);
       const response = await PresentationGenerationApi.editSlide(
         slide.id,
-=======
-      const response = await PresentationGenerationApi.editSlide(
-        presentationId,
-        slide.index,
->>>>>>> 78e1006 (Initial: presenton)
         value
       );
 
       if (response) {
         dispatch(updateSlide({ index: slide.index, slide: response }));
-<<<<<<< HEAD
         toast.success("Slide updated successfully");
       }
     } catch (error: any) {
       console.error("Error in slide editing:", error);
       toast.error("Error in slide editing.", {
         description: error.message || "Error in slide editing.",
-=======
-        toast({
-          title: "Success",
-          description: "Slide updated successfully",
-        });
-      }
-    } catch (error) {
-      console.error("Error updating slide:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update slide. Please try again.",
-        variant: "destructive",
->>>>>>> 78e1006 (Initial: presenton)
       });
     } finally {
       setIsUpdating(false);
     }
   };
-<<<<<<< HEAD
   const onDeleteSlide = async () => {
     try {
       trackEvent(MixpanelEvent.Slide_Delete_API_Call);
@@ -155,20 +89,6 @@ const SlideContent = ({
     }
   };
   // Scroll to the new slide when streaming and new slides are being generated
-=======
-
-  const handleNewSlide = (type: number, index: number) => {
-    const newSlide: Slide = getEmptySlideContent(
-      type,
-      index + 1,
-      presentationData?.presentation!.id!
-    );
-
-    dispatch(addSlide({ slide: newSlide, index: index + 1 }));
-    setShowNewSlideSelection(false);
-  };
-  // Scroll to the new slide when the presentationData is updated
->>>>>>> 78e1006 (Initial: presenton)
   useEffect(() => {
     if (
       presentationData &&
@@ -176,15 +96,11 @@ const SlideContent = ({
       presentationData.slides.length > 1 &&
       isStreaming
     ) {
-<<<<<<< HEAD
       // Scroll to the last slide (newly generated during streaming)
       const lastSlideIndex = presentationData.slides.length - 1;
       const slideElement = document.getElementById(
         `slide-${presentationData.slides[lastSlideIndex].index}`
       );
-=======
-      const slideElement = document.getElementById(`slide-${index}`);
->>>>>>> 78e1006 (Initial: presenton)
       if (slideElement) {
         slideElement.scrollIntoView({
           behavior: "smooth",
@@ -192,7 +108,6 @@ const SlideContent = ({
         });
       }
     }
-<<<<<<< HEAD
   }, [presentationData?.slides?.length, isStreaming]);
 
 
@@ -218,45 +133,25 @@ const SlideContent = ({
       <div
         id={`slide-${slide.index}`}
         className=" w-full max-w-[1280px] main-slide flex items-center max-md:mb-4 justify-center relative"
-=======
-  }, [presentationData?.slides, isStreaming]);
-
-  const language = presentationData?.presentation?.language || "English";
-  return (
-    <>
-      <div
-        id={`slide-${isStreaming ? index : slide.index}`}
-        className=" w-full max-w-[1280px] flex items-center max-md:mb-4 justify-center relative"
->>>>>>> 78e1006 (Initial: presenton)
       >
         {isStreaming && (
           <Loader2 className="w-8 h-8 absolute right-2 top-2 z-30 text-blue-800 animate-spin" />
         )}
-<<<<<<< HEAD
         <div
           data-layout={slide.layout}
           data-group={slide.layout_group}
           className={` w-full  group `}
         >
           <V1ContentRender slide={slide} isEditMode={true} theme={null} />
-=======
-        <div className={` w-full group `}>
-          {renderSlideContent(slide, language)}
-
->>>>>>> 78e1006 (Initial: presenton)
           {!showNewSlideSelection && (
             <div className="group-hover:opacity-100 hidden md:block opacity-0 transition-opacity my-4 duration-300">
               <ToolTip content="Add new slide below">
                 {!isStreaming && (
                   <div
-<<<<<<< HEAD
                     onClick={() => {
                       trackEvent(MixpanelEvent.Slide_Add_New_Slide_Button_Clicked, { pathname });
                       setShowNewSlideSelection(true);
                     }}
-=======
-                    onClick={() => setShowNewSlideSelection(true)}
->>>>>>> 78e1006 (Initial: presenton)
                     className="  bg-white shadow-md w-[80px] py-2 border hover:border-[#5141e5] duration-300  flex items-center justify-center rounded-lg cursor-pointer mx-auto"
                   >
                     <PlusIcon className="text-gray-500 text-base cursor-pointer" />
@@ -267,7 +162,6 @@ const SlideContent = ({
           )}
           {showNewSlideSelection && (
             <NewSlide
-<<<<<<< HEAD
               index={index}
               templateID={`${slide.layout.split(":")[0]}`}
               setShowNewSlideSelection={setShowNewSlideSelection}
@@ -282,16 +176,6 @@ const SlideContent = ({
                   trackEvent(MixpanelEvent.Slide_Delete_Slide_Button_Clicked, { pathname });
                   onDeleteSlide();
                 }}
-=======
-              onSelectLayout={(type) => handleNewSlide(type, slide.index)}
-              setShowNewSlideSelection={setShowNewSlideSelection}
-            />
-          )}
-          {!isStreaming && (
-            <ToolTip content="Delete slide">
-              <div
-                onClick={() => onDeleteSlide(slide.index)}
->>>>>>> 78e1006 (Initial: presenton)
                 className="absolute top-2 z-20 sm:top-4 right-2 sm:right-4 hidden md:block  transition-transform"
               >
                 <Trash2 className="text-gray-500 text-xl cursor-pointer" />
@@ -341,17 +225,11 @@ const SlideContent = ({
                       <button
                         disabled={isUpdating}
                         type="submit"
-<<<<<<< HEAD
                         className={`bg-gradient-to-r from-[#9034EA] to-[#5146E5] rounded-[32px] px-4 py-2 text-white flex items-center justify-end gap-2 ml-auto ${isUpdating ? "opacity-70 cursor-not-allowed" : ""
                           }`}
                         onClick={() => {
                           trackEvent(MixpanelEvent.Slide_Update_From_Prompt_Button_Clicked, { pathname });
                         }}
-=======
-                        className={`bg-gradient-to-r from-[#9034EA] to-[#5146E5] rounded-[32px] px-4 py-2 text-white flex items-center justify-end gap-2 ml-auto ${
-                          isUpdating ? "opacity-70 cursor-not-allowed" : ""
-                        }`}
->>>>>>> 78e1006 (Initial: presenton)
                       >
                         {isUpdating ? "Updating..." : "Update"}
                         <SendHorizontal className="w-4 sm:w-5 h-4 sm:h-5" />
@@ -362,7 +240,6 @@ const SlideContent = ({
               </Popover>
             </div>
           )}
-<<<<<<< HEAD
           {/* Speaker Notes */}
           {!isStreaming && slide?.speaker_note && (
             <div className="absolute top-2 z-20 sm:top-4 right-8 sm:right-12 hidden md:block transition-transform">
@@ -385,8 +262,6 @@ const SlideContent = ({
               </Popover>
             </div>
           )}
-=======
->>>>>>> 78e1006 (Initial: presenton)
         </div>
       </div>
     </>

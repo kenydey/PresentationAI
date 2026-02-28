@@ -1,13 +1,8 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-<<<<<<< HEAD
 import { File, X, Upload } from 'lucide-react'
 import { toast } from 'sonner'
-=======
-import { File, X, Upload, Image } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
->>>>>>> 78e1006 (Initial: presenton)
 import { cn } from '@/lib/utils'
 
 interface FileWithId extends File {
@@ -22,10 +17,6 @@ interface SupportingDocProps {
 const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
     const [isDragging, setIsDragging] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
-<<<<<<< HEAD
-=======
-    const { toast } = useToast()
->>>>>>> 78e1006 (Initial: presenton)
 
     // Convert Files to FileWithId with proper type checking
     const filesWithIds: FileWithId[] = files.map(file => {
@@ -54,7 +45,6 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
         setIsDragging(false)
 
         const droppedFiles = Array.from(e.dataTransfer.files);
-<<<<<<< HEAD
         const hasPdf = files.some(file => file.type === 'application/pdf');
 
         const validTypes = [
@@ -81,45 +71,15 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
 
         const validFiles = droppedFiles.filter(file => {
             return !(hasPdf && file.type === 'application/pdf');
-=======
-
-        const hasPdf = files.some(file => file.type === 'application/pdf');
-
-        const validFiles = droppedFiles.filter(file => {
-            const validTypes = [
-                'application/pdf',
-                'image/webp',
-                'image/png',
-                'image/x-raw',
-                'image/jpeg',
-                'text/plain',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ];
-            return validTypes.includes(file.type) && !(hasPdf && file.type === 'application/pdf');
->>>>>>> 78e1006 (Initial: presenton)
         });
 
         if (validFiles.length > 0) {
             const updatedFiles = [...files, ...validFiles]
             onFilesChange(updatedFiles)
 
-<<<<<<< HEAD
             toast.success('Files selected', {
                 description: `${validFiles.length} file(s) have been added`,
             })
-=======
-            toast({
-                title: 'Files selected',
-                description: `${validFiles.length} file(s) have been added`,
-            })
-        } else {
-            toast({
-                title: 'Multiple PDF files are not allowed',
-                description: 'Please select only one PDF file',
-                variant: 'destructive',
-            })
->>>>>>> 78e1006 (Initial: presenton)
         }
     }
 
@@ -136,12 +96,7 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
             const updatedFiles = [...files, ...validFiles]
             onFilesChange(updatedFiles)
 
-<<<<<<< HEAD
             toast.success('Files selected', {
-=======
-            toast({
-                title: 'Files selected',
->>>>>>> 78e1006 (Initial: presenton)
                 description: `${validFiles.length} file(s) have been added`,
             })
         }
@@ -155,20 +110,10 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
         onFilesChange(updatedFiles)
     }
 
-<<<<<<< HEAD
 
     return (
         <div className="w-full">
             <h2 className="text-[#444] font-instrument_sans pt-4 text-lg mb-4">Supporting Documents</h2>
-=======
-    const isImageFile = (file: File): boolean => {
-        return file.type?.startsWith('image/') || false
-    }
-
-    return (
-        <div className="w-full">
-            <h2 className="text-[#444] font-satoshi pt-4 text-lg mb-4">Supporting Documents</h2>
->>>>>>> 78e1006 (Initial: presenton)
             <div
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
@@ -194,29 +139,18 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
                         }
                     </p>
                     <p className="text-gray-400 text-sm text-center mb-4">
-<<<<<<< HEAD
                         Supports PDFs, Text files, PPTX, DOCX
-=======
-                        Supports PDFs, Images (.webp, .png, .raw, .jpeg), Text files, PPTX, DOCX
->>>>>>> 78e1006 (Initial: presenton)
                     </p>
 
                     <input
                         type="file"
-<<<<<<< HEAD
                         accept=".pdf,.txt,.pptx,.docx"
-=======
-                        accept=".pdf,.webp,.png,.raw,.jpeg,.txt,.pptx,.docx"
->>>>>>> 78e1006 (Initial: presenton)
                         onChange={handleFileInput}
                         className="hidden"
                         id="file-upload"
                         ref={fileInputRef}
                         multiple
-<<<<<<< HEAD
                         data-testid="file-upload-input"
-=======
->>>>>>> 78e1006 (Initial: presenton)
                     />
 
                     <button
@@ -240,7 +174,6 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
                                     Selected Files ({files.length})
                                 </h3>
                             </div>
-<<<<<<< HEAD
                             <div data-testid="file-list" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                                 {filesWithIds.map((file) => {
 
@@ -262,33 +195,10 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
                                                             removeFile(file.id)
                                                         }}
                                                         className="absolute top-1 right-2 p-1.5
-=======
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                                {filesWithIds.map((file) => (
-                                    <div key={file.id}
-                                        className="bg-white rounded-lg border border-gray-200 overflow-hidden
-                                            hover:border-purple-200 group relative"
-                                    >
-                                        <div className="p-4 bg-purple-50 group-hover:bg-purple-100 
-                                            transition-colors flex items-center justify-center relative"
-                                        >
-                                            {isImageFile(file) ? (
-                                                <Image className="w-8 h-8 text-purple-600" />
-                                            ) : (
-                                                <File className="w-8 h-8 text-purple-600" />
-                                            )}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    removeFile(file.id)
-                                                }}
-                                                className="absolute top-1 right-2 p-1.5
->>>>>>> 78e1006 (Initial: presenton)
                                                     bg-white/80 backdrop-blur-sm rounded-full
                                                     text-gray-500 hover:text-red-500 
                                                     shadow-sm hover:shadow-md
                                                     transition-all duration-200"
-<<<<<<< HEAD
                                                         aria-label="Remove file"
                                                     >
                                                         <X className="w-4 h-4" />
@@ -307,35 +217,11 @@ const SupportingDoc = ({ files, onFilesChange }: SupportingDocProps) => {
                                         )
                                     )
                                 })}
-=======
-                                                aria-label="Remove file"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-
-                                        <div className="p-3 relative">
-                                            <p className="text-sm font-medium text-gray-700 truncate mb-1 pr-2">
-                                                {file.name || 'Unnamed File'}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                {formatFileSize(file.size)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
->>>>>>> 78e1006 (Initial: presenton)
                             </div>
                         </div>
                     </div>
                 )}
-<<<<<<< HEAD
 
-=======
-                {files.filter(file => file.type === 'text/csv').length > 0 && (
-                    <p className="text-sm text-gray-500 font-switzer text-center pb-1">Analyzing CSV file may take some time... Be Patient!</p>
-                )}
->>>>>>> 78e1006 (Initial: presenton)
             </div>
         </div>
     )

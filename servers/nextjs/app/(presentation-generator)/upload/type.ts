@@ -24,12 +24,8 @@ export enum LanguageType {
   Italian = "Italian (Italiano)",
   Dutch = "Dutch (Nederlands)",
   Russian = "Russian (Русский)",
-<<<<<<< HEAD
   ChineseSimplified = "Chinese (Simplified - 中文, 汉语)",
   ChineseTraditional = "Chinese (Traditional - 中文, 漢語)",
-=======
-  Chinese = "Chinese (Simplified & Traditional - 中文, 汉语/漢語)",
->>>>>>> 78e1006 (Initial: presenton)
   Japanese = "Japanese (日本語)",
   Korean = "Korean (한국어)",
   Arabic = "Arabic (العربية)",
@@ -60,10 +56,7 @@ export enum LanguageType {
   Welsh = "Welsh (Cymraeg)",
   Irish = "Irish (Gaeilge)",
   ScottishGaelic = "Scottish Gaelic (Gàidhlig)",
-<<<<<<< HEAD
   Ukrainian = "Ukrainian (Українська)",
-=======
->>>>>>> 78e1006 (Initial: presenton)
 
   // Middle Eastern and Central Asian Languages
   Hebrew = "Hebrew (עברית)",
@@ -127,7 +120,6 @@ export enum LanguageType {
 }
 
 export interface PresentationConfig {
-<<<<<<< HEAD
   slides: string | null;
   language: LanguageType | null;
   prompt: string;
@@ -154,9 +146,3 @@ export enum VerbosityType {
   Text_Heavy = "text-heavy",
 }
 
-=======
-  slides: "5" | "8" | "10" | "12" | "15" | null;
-  language: LanguageType | null;
-  prompt: string;
-}
->>>>>>> 78e1006 (Initial: presenton)

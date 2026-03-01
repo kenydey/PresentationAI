@@ -9,8 +9,10 @@ import re
 import json
 from pathlib import Path
 
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "nextjs" / "app" / "presentation-templates"
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / "assets" / "template_registry.json"
+# TSX 源文件位于 PresentationAI 子模块（workspace 根目录下）
+_ROOT = Path(__file__).resolve().parent.parent.parent.parent  # servers/fastapi/scripts -> workspace
+TEMPLATES_DIR = _ROOT / "PresentationAI" / "servers" / "nextjs" / "app" / "presentation-templates"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "assets" / "template_registry.json"  # servers/fastapi/assets
 
 ZOD_TYPE_MAP = {
     "z.string()": "string",

@@ -27,9 +27,15 @@ dependencies = [
     "numpy>=1.24.0",
     "bcrypt>=4.3.0",
     "pyjwt>=2.11.0",
+    "Pillow>=10.0.0",
+    "rembg>=2.0.0",
+    "playwright>=1.49.0",
 ]
 [project.optional-dependencies]
 graphviz = ["pygraphviz>=1.11"]
+
+[tool.pytest.ini_options]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 
 [tool.setuptools.packages.find]
 where = ["."]

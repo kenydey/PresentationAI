@@ -5,6 +5,7 @@ from nicegui_app.pages import (  # noqa: F401
     create,
     outline,
     viewer,
+    export_view,
     images,
     fonts,
     templates_mgmt,

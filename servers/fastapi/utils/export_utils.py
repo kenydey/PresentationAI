@@ -1,6 +1,7 @@
 """Export presentation to PPTX or PDF — no Next.js dependency.
 
 PPTX: converts slide content JSON → PptxPresentationModel → .pptx file
+      或 use_dom_sampling=True 时：Playwright 采样预览页 DOM → PptxPresentationModel（高质量）
 PDF:  converts PPTX → PDF via LibreOffice headless
 """
 
@@ -30,24 +31,44 @@ async def export_presentation(
     export_as: Literal["pptx", "pdf"],
     sql_session: AsyncSession | None = None,
     slides: list | None = None,
+    use_dom_sampling: bool = False,
+    export_preview_base_url: str | None = None,
 ) -> PresentationAndPath:
     """Export a presentation as PPTX or PDF.
 
     If *slides* is not provided, fetch from DB via *sql_session*.
+
+    When use_dom_sampling=True and export_as=pptx: uses Playwright to sample the
+    export preview page DOM for higher visual fidelity (what-you-see-is-what-you-get).
     """
+    pptx_model: PptxPresentationModel
+    if use_dom_sampling and export_as == "pptx":
+        try:
+            from services.dom_sampling_export_service import export_via_dom_sampling
 
-    if slides is None and sql_session is not None:
-        result = await sql_session.scalars(
-            select(SlideModel)
-            .where(SlideModel.presentation == presentation_id)
-            .order_by(SlideModel.index)
-        )
-        slides = [s.model_dump(mode="json") for s in result.all()]
+            pptx_model = await export_via_dom_sampling(
+                str(presentation_id),
+                title or str(presentation_id),
+                base_url=export_preview_base_url,
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"高质量导出失败 (DOM 采样): {e!s}",
+            )
+    else:
+        if slides is None and sql_session is not None:
+            result = await sql_session.scalars(
+                select(SlideModel)
+                .where(SlideModel.presentation == presentation_id)
+                .order_by(SlideModel.index)
+            )
+            slides = [s.model_dump(mode="json") for s in result.all()]
 
-    if not slides:
-        slides = []
+        if not slides:
+            slides = []
 
-    pptx_model = convert_presentation_to_pptx_model(slides, title=title)
+        pptx_model = convert_presentation_to_pptx_model(slides, title=title)
 
     temp_dir = TEMP_FILE_SERVICE.create_temp_dir()
     pptx_creator = PptxPresentationCreator(pptx_model, temp_dir)

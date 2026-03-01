@@ -19,6 +19,11 @@ redis>=6.2.0
 sqlmodel>=0.0.24
 nicegui>=2.0.0
 numpy>=1.24.0
+bcrypt>=4.3.0
+pyjwt>=2.11.0
+Pillow>=10.0.0
+rembg>=2.0.0
+playwright>=1.49.0
 
 [graphviz]
 pygraphviz>=1.11

@@ -1,13 +1,10 @@
-"""系统设置 — LLM 提供商和图像生成配置。"""
+"""系统设置 — LLM 提供商和图像生成配置。对接 Config API。"""
 
-import os
-import json
 from nicegui import ui
 from nicegui_app.layout import page_layout
-from nicegui_app.api_client import api_post
-from utils.get_env import get_can_change_keys_env, get_user_config_path_env
+from nicegui_app.api_client import api_get, api_post
+from utils.get_env import get_can_change_keys_env
 from models.user_config import OpenAICompatibleProviderConfig, UserConfig
-from utils.user_config import get_user_config, update_env_with_user_config
 
 PROVIDERS = {"openai": "OpenAI", "google": "Google", "anthropic": "Anthropic", "ollama": "Ollama", "custom": "自定义 (OpenAI Compatible)"}
 IMAGE_PROVIDERS = {"dall-e-3": "DALL-E 3", "gpt-image-1.5": "GPT Image 1.5", "gemini_flash": "Gemini Flash", "pexels": "Pexels", "pixabay": "Pixabay", "comfyui": "ComfyUI"}
@@ -30,7 +27,6 @@ def settings_page():
     page_layout("系统设置")
 
     can_change = get_can_change_keys_env() != "false"
-    config_path = get_user_config_path_env()
 
     async def check_openai():
         key = oai_key.value
@@ -43,71 +39,102 @@ def settings_page():
         else:
             oai_models_label.set_text(f"检测失败: {data}")
 
+    async def check_google():
+        key = google_key.value
+        if not key:
+            google_models_label.set_text("请先输入 API Key")
+            return
+        status, data = await api_post("/api/v1/ppt/google/models/available", {"api_key": key})
+        if status == 200 and isinstance(data, list):
+            google_models_label.set_text(f"可用模型: {', '.join(str(m) for m in data[:10])}")
+        else:
+            google_models_label.set_text(f"检测失败: {data}")
+
+    async def check_anthropic():
+        key = ant_key.value
+        if not key:
+            ant_models_label.set_text("请先输入 API Key")
+            return
+        status, data = await api_post("/api/v1/ppt/anthropic/models/available", {"api_key": key})
+        if status == 200 and isinstance(data, list):
+            ant_models_label.set_text(f"可用模型: {', '.join(str(m) for m in data[:10])}")
+        else:
+            ant_models_label.set_text(f"检测失败: {data}")
+
+    async def check_ollama():
+        url = ollama_url.value or "http://localhost:11434"
+        ollama_models_label.set_text("检测中…")
+        status, data = await api_get("/api/v1/ppt/ollama/models/available")
+        if status == 200 and isinstance(data, list):
+            names = [m.get("name", m) if isinstance(m, dict) else str(m) for m in data[:10]]
+            ollama_models_label.set_text(f"已拉取模型: {', '.join(names)}" if names else "无已拉取模型")
+        else:
+            ollama_models_label.set_text(f"检测失败（请确保 Ollama 已启动）: {data}")
+
     async def load_config():
         log.clear()
-        try:
-            cfg = get_user_config()
-        except Exception as e:
-            log.push(f"加载失败: {e}")
+        status, data = await api_get("/api/v1/ppt/config")
+        if status != 200 or not isinstance(data, dict):
+            log.push(f"加载失败: {data}")
             ui.notify('配置加载失败', type='negative')
             return
-        llm_provider.value = _norm_select_value(cfg.default_llm_provider or cfg.LLM, PROVIDERS)
-        default_model.value = cfg.default_llm_model or ""
-        outline_prov.value = _norm_select_value(cfg.outline_provider, PROVIDERS)
-        outline_mod.value = cfg.outline_model or ""
-        content_prov.value = _norm_select_value(cfg.content_provider, PROVIDERS)
-        content_mod.value = cfg.content_model or ""
-        notes_prov.value = _norm_select_value(cfg.notes_provider, PROVIDERS)
-        notes_mod.value = cfg.speaker_notes_model or ""
-        research_prov.value = _norm_select_value(cfg.research_provider, PROVIDERS)
-        research_mod.value = cfg.research_model or ""
-        oai_key.value = cfg.OPENAI_API_KEY or ""
-        oai_model.value = cfg.OPENAI_MODEL or ""
-        google_key.value = cfg.GOOGLE_API_KEY or ""
-        google_model.value = cfg.GOOGLE_MODEL or ""
-        ant_key.value = cfg.ANTHROPIC_API_KEY or ""
-        ant_model.value = cfg.ANTHROPIC_MODEL or ""
-        ollama_url.value = cfg.OLLAMA_URL or ""
-        ollama_model.value = cfg.OLLAMA_MODEL or ""
-        profiles = cfg.openai_compatible_configs or {}
-        compat_active.value = _norm_select_value(cfg.active_openai_compatible, COMPAT_OPTIONS) or "custom"
-        dsc = profiles.get("deepseek")
-        if dsc: ds_url.value, ds_key.value, ds_model.value = dsc.base_url or "", dsc.api_key or "", dsc.default_model or ""
-        kc = profiles.get("kimi")
-        if kc: kimi_url.value, kimi_key.value, kimi_model.value = kc.base_url or "", kc.api_key or "", kc.default_model or ""
-        qc = profiles.get("qwen")
-        if qc: qwen_url.value, qwen_key.value, qwen_model.value = qc.base_url or "", qc.api_key or "", qc.default_model or ""
-        cc = profiles.get("custom")
-        cust_url.value = (cc.base_url if cc else None) or cfg.CUSTOM_LLM_URL or ""
-        cust_key.value = (cc.api_key if cc else None) or cfg.CUSTOM_LLM_API_KEY or ""
-        cust_model.value = (cc.default_model if cc else None) or cfg.CUSTOM_MODEL or ""
-        disable_img.value = bool(cfg.DISABLE_IMAGE_GENERATION)
-        img_provider.value = _norm_select_value(cfg.IMAGE_PROVIDER, IMAGE_PROVIDERS)
-        pexels_key.value = cfg.PEXELS_API_KEY or ""
-        pixabay_key.value = cfg.PIXABAY_API_KEY or ""
-        comfy_url.value = cfg.COMFYUI_URL or ""
-        comfy_wf.value = cfg.COMFYUI_WORKFLOW or ""
-        dalle_q.value = cfg.DALL_E_3_QUALITY or ""
-        gpt_img_q.value = cfg.GPT_IMAGE_1_5_QUALITY or ""
-        tool_calls.value = bool(cfg.TOOL_CALLS)
-        disable_think.value = bool(cfg.DISABLE_THINKING)
-        extended_reason.value = bool(cfg.EXTENDED_REASONING)
-        web_ground.value = bool(cfg.WEB_GROUNDING)
-        log.push(f"配置已加载 ({config_path})")
+        cfg = data
+        llm_provider.value = _norm_select_value(cfg.get("default_llm_provider") or cfg.get("LLM"), PROVIDERS)
+        default_model.value = cfg.get("default_llm_model") or ""
+        outline_prov.value = _norm_select_value(cfg.get("outline_provider"), PROVIDERS)
+        outline_mod.value = cfg.get("outline_model") or ""
+        content_prov.value = _norm_select_value(cfg.get("content_provider"), PROVIDERS)
+        content_mod.value = cfg.get("content_model") or ""
+        notes_prov.value = _norm_select_value(cfg.get("notes_provider"), PROVIDERS)
+        notes_mod.value = cfg.get("speaker_notes_model") or ""
+        research_prov.value = _norm_select_value(cfg.get("research_provider"), PROVIDERS)
+        research_mod.value = cfg.get("research_model") or ""
+        oai_key.value = cfg.get("OPENAI_API_KEY") or ""
+        oai_model.value = cfg.get("OPENAI_MODEL") or ""
+        google_key.value = cfg.get("GOOGLE_API_KEY") or ""
+        google_model.value = cfg.get("GOOGLE_MODEL") or ""
+        ant_key.value = cfg.get("ANTHROPIC_API_KEY") or ""
+        ant_model.value = cfg.get("ANTHROPIC_MODEL") or ""
+        ollama_url.value = cfg.get("OLLAMA_URL") or ""
+        ollama_model.value = cfg.get("OLLAMA_MODEL") or ""
+        profiles = cfg.get("openai_compatible_configs") or {}
+        compat_active.value = _norm_select_value(cfg.get("active_openai_compatible"), COMPAT_OPTIONS) or "custom"
+        dsc = profiles.get("deepseek") or {}
+        if isinstance(dsc, dict): ds_url.value, ds_key.value, ds_model.value = dsc.get("base_url") or "", dsc.get("api_key") or "", dsc.get("default_model") or ""
+        kc = profiles.get("kimi") or {}
+        if isinstance(kc, dict): kimi_url.value, kimi_key.value, kimi_model.value = kc.get("base_url") or "", kc.get("api_key") or "", kc.get("default_model") or ""
+        qc = profiles.get("qwen") or {}
+        if isinstance(qc, dict): qwen_url.value, qwen_key.value, qwen_model.value = qc.get("base_url") or "", qc.get("api_key") or "", qc.get("default_model") or ""
+        cc = profiles.get("custom") or {}
+        cust_url.value = (cc.get("base_url") if isinstance(cc, dict) else None) or cfg.get("CUSTOM_LLM_URL") or ""
+        cust_key.value = (cc.get("api_key") if isinstance(cc, dict) else None) or cfg.get("CUSTOM_LLM_API_KEY") or ""
+        cust_model.value = (cc.get("default_model") if isinstance(cc, dict) else None) or cfg.get("CUSTOM_MODEL") or ""
+        disable_img.value = bool(cfg.get("DISABLE_IMAGE_GENERATION"))
+        img_provider.value = _norm_select_value(cfg.get("IMAGE_PROVIDER"), IMAGE_PROVIDERS)
+        pexels_key.value = cfg.get("PEXELS_API_KEY") or ""
+        pixabay_key.value = cfg.get("PIXABAY_API_KEY") or ""
+        comfy_url.value = cfg.get("COMFYUI_URL") or ""
+        comfy_wf.value = cfg.get("COMFYUI_WORKFLOW") or ""
+        dalle_q.value = cfg.get("DALL_E_3_QUALITY") or ""
+        gpt_img_q.value = cfg.get("GPT_IMAGE_1_5_QUALITY") or ""
+        tool_calls.value = bool(cfg.get("TOOL_CALLS"))
+        disable_think.value = bool(cfg.get("DISABLE_THINKING"))
+        extended_reason.value = bool(cfg.get("EXTENDED_REASONING"))
+        web_ground.value = bool(cfg.get("WEB_GROUNDING"))
+        log.push("配置已加载（来自 Config API）")
         ui.notify('配置已加载', type='positive')
+        await load_theme_footer()
 
     async def save_config():
         log.clear()
-        try:
-            existing = get_user_config()
-        except Exception:
-            existing = UserConfig()
+        status, existing_data = await api_get("/api/v1/ppt/config")
+        existing = existing_data if isinstance(existing_data, dict) else {}
 
         def _prof(url, key, model, name):
             if not (url or key or model): return None
             return OpenAICompatibleProviderConfig(display_name=name, base_url=url or None, api_key=key or None, default_model=model or None)
 
-        profiles = dict(existing.openai_compatible_configs or {})
+        profiles = dict(existing.get("openai_compatible_configs") or {})
         for k, n, u, ky, m in [("deepseek","DeepSeek",ds_url,ds_key,ds_model),("kimi","Kimi",kimi_url,kimi_key,kimi_model),("qwen","Qwen",qwen_url,qwen_key,qwen_model),("custom","Custom",cust_url,cust_key,cust_model)]:
             p = _prof(u.value, ky.value, m.value, n)
             if p: profiles[k] = p
@@ -131,27 +158,14 @@ def settings_page():
             TOOL_CALLS=tool_calls.value, DISABLE_THINKING=disable_think.value,
             EXTENDED_REASONING=extended_reason.value, WEB_GROUNDING=web_ground.value,
         )
-        path = get_user_config_path_env() or ""
-        if not path or not path.strip():
-            log.push("无法确定配置路径，请设置 USER_CONFIG_PATH 或 APP_DATA_DIRECTORY 环境变量")
-            ui.notify('配置路径未设置', type='negative')
-            return
-        path = path.strip()
-        try:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(merged.model_dump(), f, ensure_ascii=False)
-        except Exception as e:
-            log.push(f"保存失败: {e}")
+        status, data = await api_post("/api/v1/ppt/config", merged.model_dump(exclude_none=True))
+        if status != 200:
+            log.push(f"保存失败: {data}")
             ui.notify('配置保存失败', type='negative')
             return
-        try:
-            update_env_with_user_config()
-        except Exception:
-            pass
         result_label.set_text("配置已保存!")
         ui.notify('配置保存成功', type='positive')
-        log.push(f"写入 {path}")
+        log.push("已通过 Config API 保存")
 
     with ui.column().classes("w-full p-6 gap-4"):
         ui.label("LLM 与图像提供商配置").classes("text-2xl font-bold")
@@ -185,14 +199,20 @@ def settings_page():
                 with ui.expansion("Google Gemini", icon="psychology").classes("w-full"):
                     google_key = ui.input("API Key").props("type=password").classes("w-full")
                     google_model = ui.input("模型 (如 gemini-2.0-flash)").classes("w-full")
+                    ui.button("检测可用模型", on_click=check_google).props("flat dense")
+                    google_models_label = ui.label().classes("text-xs text-gray-400")
 
                 with ui.expansion("Anthropic", icon="auto_awesome").classes("w-full"):
                     ant_key = ui.input("API Key").props("type=password").classes("w-full")
                     ant_model = ui.input("模型 (如 claude-3-5-sonnet)").classes("w-full")
+                    ui.button("检测可用模型", on_click=check_anthropic).props("flat dense")
+                    ant_models_label = ui.label().classes("text-xs text-gray-400")
 
                 with ui.expansion("Ollama (本地)", icon="computer").classes("w-full"):
                     ollama_url = ui.input("URL (如 http://localhost:11434)").classes("w-full")
                     ollama_model = ui.input("模型 (如 llama3.2:3b)").classes("w-full")
+                    ui.button("检测已拉取模型", on_click=check_ollama).props("flat dense")
+                    ollama_models_label = ui.label().classes("text-xs text-gray-400")
 
                 with ui.expansion("自定义 OpenAI Compatible", icon="extension").classes("w-full"):
                     compat_active = ui.select(COMPAT_OPTIONS, value="custom", label="当前厂商").classes("w-64")
@@ -232,6 +252,29 @@ def settings_page():
                 disable_think = ui.checkbox("禁用思考")
                 extended_reason = ui.checkbox("扩展推理")
                 web_ground = ui.checkbox("联网检索")
+
+                with ui.expansion("主题与页脚", icon="palette").classes("w-full"):
+                    theme_primary = ui.input("主题主色 (hex 如 #6C63FF)").classes("w-full")
+                    footer_text = ui.input("页脚文字").classes("w-full")
+
+                    async def load_theme_footer():
+                        st, td = await api_get("/api/v1/ppt/theme/?userId=default")
+                        sf, fd = await api_get("/api/v1/ppt/footer/?userId=default")
+                        if st == 200 and isinstance(td, dict):
+                            theme_data = td.get("themeData") or {}
+                            theme_primary.value = theme_data.get("primaryColor") or theme_data.get("primary") or "#6C63FF"
+                        if sf == 200 and isinstance(fd, dict):
+                            props = fd.get("properties") or {}
+                            footer_text.value = props.get("text") or props.get("footerText") or ""
+
+                    async def save_theme_footer():
+                        await api_post("/api/v1/ppt/theme/", {"userId": "default", "themeData": {"primaryColor": theme_primary.value or "#6C63FF"}})
+                        await api_post("/api/v1/ppt/footer/", {"userId": "default", "properties": {"text": footer_text.value or ""}})
+                        ui.notify("主题与页脚已保存", type="positive")
+
+                    with ui.row().classes("gap-2"):
+                        ui.button("加载", on_click=load_theme_footer).props("flat dense size=sm")
+                        ui.button("保存", on_click=save_theme_footer).props("flat dense size=sm color=primary")
 
         log = ui.log().classes("h-28 w-full")
         result_label = ui.label().classes("text-green-600")

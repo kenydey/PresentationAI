@@ -65,6 +65,29 @@ def fonts_page():
                     "accept='.ttf,.otf,.woff,.woff2' flat bordered"
                 ).classes("w-full")
 
+            with ui.card().classes("w-96"):
+                ui.label("分析 PPTX 字体").classes("font-semibold mb-2")
+                ui.label("上传 PPTX 可分析文档中使用的字体").classes("text-xs text-gray-400 mb-2")
+                pptx_result = ui.label().classes("text-sm text-gray-600")
+                async def handle_pptx_analyze(e):
+                    pptx_result.set_text("分析中…")
+                    fd = aiohttp.FormData()
+                    fd.add_field("pptx_file", e.content.read(), filename=e.name, content_type="application/vnd.openxmlformats-officedocument.presentationml.presentation")
+                    status, data = await api_post_form("/api/v1/ppt/pptx-fonts/process", fd)
+                    if status == 200 and isinstance(data, dict) and data.get("success"):
+                        fonts_info = data.get("fonts", {})
+                        supported = fonts_info.get("internally_supported_fonts", [])
+                        not_supported = fonts_info.get("not_supported_fonts", [])
+                        lines = [f"✓ 系统支持: {len(supported)} 个", f"✗ 需安装: {len(not_supported)} 个"]
+                        if not_supported:
+                            lines.append("未支持: " + ", ".join(not_supported[:5]))
+                        pptx_result.set_text("\n".join(lines))
+                    else:
+                        pptx_result.set_text(f"分析失败: {data}")
+                ui.upload(on_upload=handle_pptx_analyze, auto_upload=True).props(
+                    "accept='.pptx' flat bordered"
+                ).classes("w-full")
+
             with ui.card().classes("flex-1 min-w-[400px]"):
                 with ui.row().classes("items-center justify-between"):
                     ui.label("已上传字体").classes("font-semibold")

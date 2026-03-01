@@ -18,13 +18,28 @@ from utils.user_config import get_user_config
 
 
 def get_llm_provider():
-    try:
-        return LLMProvider(get_llm_provider_env())
-    except:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Invalid LLM provider. Please select one of: openai, google, anthropic, ollama, custom",
-        )
+    """返回当前 LLM 提供商；优先使用环境变量 LLM，未设置时从 userConfig 读取。"""
+    env_val = get_llm_provider_env()
+    if env_val:
+        try:
+            return LLMProvider(env_val)
+        except ValueError:
+            pass
+    # 回退到 userConfig（确保配置了 DeepSeek 等 custom 时无需预置 LLM 环境变量）
+    cfg = get_user_config()
+    provider_val = cfg.default_llm_provider or cfg.LLM
+    if provider_val:
+        try:
+            return LLMProvider(provider_val)
+        except ValueError:
+            pass
+    raise HTTPException(
+        status_code=500,
+        detail=(
+            "Invalid or missing LLM provider. Please select one of: openai, google, anthropic, ollama, custom. "
+            "Configure in Settings (系统设置) or set LLM environment variable."
+        ),
+    )
 
 
 def is_openai_selected():

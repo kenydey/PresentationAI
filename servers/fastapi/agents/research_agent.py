@@ -76,24 +76,30 @@ async def research_agent_run(
     tools = [SearchWebTool] if (client.enable_web_grounding() and web_search) else None
 
     schema = _get_presentation_state_schema_for_n_slides(n_slides)
-
-    try:
-        response = await client.generate_structured(
-            model=model,
-            messages=_get_messages(
-                content,
-                n_slides,
-                language,
-                additional_context,
-                tone,
-                verbosity,
-                instructions,
-                include_title_slide,
-            ),
-            response_format=schema,
-            strict=True,
-            tools=tools,
-        )
-        return PresentationState.model_validate(response)
-    except Exception as e:
-        raise handle_llm_client_exceptions(e)
+    messages = _get_messages(
+        content,
+        n_slides,
+        language,
+        additional_context,
+        tone,
+        verbosity,
+        instructions,
+        include_title_slide,
+    )
+    last_error = None
+    for attempt in range(2):
+        try:
+            response = await client.generate_structured(
+                model=model,
+                messages=messages,
+                response_format=schema,
+                strict=True,
+                tools=tools,
+            )
+            return PresentationState.model_validate(response)
+        except Exception as e:
+            last_error = e
+            if attempt == 0 and "did not return any content" in str(e):
+                continue
+            raise handle_llm_client_exceptions(e)
+    raise handle_llm_client_exceptions(last_error)

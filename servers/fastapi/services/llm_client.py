@@ -1,4 +1,5 @@
 import asyncio
+import re
 import dirtyjson
 import json
 from typing import AsyncGenerator, List, Optional
@@ -523,6 +524,7 @@ class LLMClient:
                 if tool_call.function.name == "ResponseSchema":
                     content = tool_call.function.arguments
                     has_response_schema = True
+                    break
 
             if not has_response_schema:
                 parsed_tool_calls = [
@@ -560,10 +562,53 @@ class LLMClient:
                     extra_body=extra_body,
                     depth=depth + 1,
                 )
+        def _parse_json_text(text: str) -> dict | None:
+            if not text or not isinstance(text, str) or not text.strip():
+                return None
+            text = text.strip()
+            # 尝试提取 ```json ... ``` 或 ``` ... ``` 中的内容
+            for match in re.finditer(r"```(?:json)?\s*([\s\S]*?)```", text):
+                block = match.group(1).strip()
+                if block.startswith("{"):
+                    try:
+                        return dict(dirtyjson.loads(block))
+                    except Exception:
+                        pass
+            # 直接解析
+            try:
+                return dict(dirtyjson.loads(text))
+            except Exception:
+                pass
+            # 提取第一个平衡的 { ... } 块
+            start = text.find("{")
+            if start >= 0:
+                depth, i = 0, start
+                for i in range(start, len(text)):
+                    if text[i] == "{":
+                        depth += 1
+                    elif text[i] == "}":
+                        depth -= 1
+                        if depth == 0:
+                            try:
+                                return dict(dirtyjson.loads(text[start : i + 1]))
+                            except Exception:
+                                break
+            return None
+
         if content:
             if depth == 0:
-                return dict(dirtyjson.loads(content))
-            return content
+                if isinstance(content, dict):
+                    return content
+                parsed = _parse_json_text(content) if isinstance(content, str) else None
+                if parsed:
+                    return parsed
+            else:
+                return content
+        # 回退：部分模型将 JSON 放在 message.content 而非 tool call
+        raw_text = response.choices[0].message.content
+        parsed = _parse_json_text(raw_text) if raw_text else None
+        if parsed:
+            return parsed
         return None
 
     async def _generate_google_structured(

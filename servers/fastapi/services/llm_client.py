@@ -69,14 +69,11 @@ class LLMClient:
         self._client = self._get_client()
         self.tool_calls_handler = LLMToolCallsHandler(self)
 
-    # ? Use tool calls (DeepSeek 等 custom 提供商不支持 response_format，需用 tool_calls)
+    # ? Use tool calls (DeepSeek/Qwen 等 custom 提供商普遍不支持 response_format，强制用 tool_calls)
     def use_tool_calls_for_structured_output(self) -> bool:
         if self.llm_provider != LLMProvider.CUSTOM:
             return False
-        val = parse_bool_or_none(get_tool_calls_env())
-        if val is not None:
-            return val
-        # 未显式配置时默认 True，兼容 DeepSeek 等不支持 response_format 的 API
+        # custom 提供商一律使用 tool_calls，避免 "response_format type is unavailable" 错误
         return True
 
     # ? Web Grounding

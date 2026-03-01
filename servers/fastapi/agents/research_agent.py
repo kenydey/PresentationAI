@@ -11,6 +11,7 @@ from models.presentation_state import PresentationState, SlideState
 from services.llm_client import LLMClient
 from utils.llm_client_error_handler import handle_llm_client_exceptions
 from utils.llm_provider import get_model_for_task
+from utils.llm_response_normalizer import normalize_presentation_state_response
 from models.llm_tools import SearchWebTool
 
 
@@ -96,6 +97,7 @@ async def research_agent_run(
                 strict=True,
                 tools=tools,
             )
+            response = normalize_presentation_state_response(response)
             return PresentationState.model_validate(response)
         except Exception as e:
             last_error = e

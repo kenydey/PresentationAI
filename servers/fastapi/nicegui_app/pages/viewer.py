@@ -221,14 +221,14 @@ def viewer_page(id: str = ""):
             pid_input = ui.input("演示 ID", value=id).classes("w-96")
             load_btn = ui.button("加载", icon="download", on_click=load_pres).props("color=primary")
 
-        with ui.row().classes("w-full gap-6 items-start flex-wrap"):
+        with ui.row().classes("w-full gap-6 items-start"):
             # 左栏：幻灯片列表
             with ui.card().classes("w-64 shrink-0"):
                 ui.label("幻灯片列表").classes("font-semibold mb-2")
-                slide_list = ui.column().classes("w-full gap-1 max-h-[500px] overflow-auto")
+                slide_list = ui.column().classes("w-full gap-1 max-h-[600px] overflow-auto")
 
-            # 中栏：当前幻灯片详情
-            with ui.card().classes("flex-1 min-w-[400px]"):
+            # 主区域：预览（放大） + 其他标签页
+            with ui.card().classes("flex-1 min-w-0"):
                 slide_title = ui.label("选择一个幻灯片").classes("font-semibold text-lg")
                 slide_meta = ui.label().classes("text-xs text-gray-400")
 
@@ -242,12 +242,12 @@ def viewer_page(id: str = ""):
                 with ui.tab_panels(tabs, value=tab_preview).classes("w-full"):
                     with ui.tab_panel(tab_preview):
                         _empty_html = (
-                            '<div class="flex items-center justify-center w-full min-h-[320px] '
+                            '<div class="flex items-center justify-center w-full min-h-[480px] '
                             'bg-gray-100 text-gray-400 rounded-xl">选择幻灯片以预览</div>'
                         )
                         preview_html = ui.html(_empty_html, sanitize=False).classes(
                             "w-full overflow-hidden rounded-xl shadow-lg bg-white"
-                        ).style("aspect-ratio: 16/9; max-width: 800px;")
+                        ).style("aspect-ratio: 16/9; min-height: 420px;")
                     with ui.tab_panel(tab_content):
                         content_display = ui.column().classes("w-full gap-2")
                     with ui.tab_panel(tab_html):
@@ -261,21 +261,21 @@ def viewer_page(id: str = ""):
                     edit_prompt = ui.input("编辑指令（如：让内容更简洁）").classes("flex-1")
                     edit_btn = ui.button("AI 编辑此页", icon="edit", on_click=edit_slide).props("outline")
 
-            # 右栏：Vibe 对话式编辑
-            with ui.card().classes("w-80 shrink-0"):
-                ui.label("Vibe 编辑").classes("font-semibold mb-2")
-                ui.label("用自然语言修改演示，如：「把第三页改成案例分析并换成左右排版」").classes(
-                    "text-xs text-gray-500 mb-2"
+        # Vibe 编辑：移到预览区域下方
+        with ui.card().classes("w-full mt-4"):
+            ui.label("Vibe 编辑").classes("font-semibold mb-2")
+            ui.label("用自然语言修改演示，如：「把第三页改成案例分析并换成左右排版」").classes(
+                "text-xs text-gray-500 mb-2"
+            )
+            vibe_chat_container = ui.column().classes(
+                "w-full gap-2 max-h-[200px] overflow-auto border rounded p-2 bg-gray-50"
+            )
+            with ui.row().classes("w-full gap-2 mt-2"):
+                vibe_input = ui.input(placeholder="输入编辑指令").classes("flex-1")
+                vibe_send_btn = ui.button("发送", icon="send", on_click=send_vibe).props(
+                    "color=primary flat"
                 )
-                vibe_chat_container = ui.column().classes(
-                    "w-full gap-2 max-h-[280px] overflow-auto border rounded p-2 bg-gray-50"
-                )
-                with ui.row().classes("w-full gap-2 mt-2"):
-                    vibe_input = ui.input(placeholder="输入编辑指令").classes("flex-1")
-                    vibe_send_btn = ui.button("发送", icon="send", on_click=send_vibe).props(
-                        "color=primary flat"
-                    )
-                vibe_send_btn.set_enabled(False)
+            vibe_send_btn.set_enabled(False)
 
         log = ui.log().classes("h-24 w-full")
 

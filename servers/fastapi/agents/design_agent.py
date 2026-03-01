@@ -8,6 +8,7 @@ from models.presentation_state import PresentationState
 from services.llm_client import LLMClient
 from utils.llm_client_error_handler import handle_llm_client_exceptions
 from utils.llm_provider import get_model_for_task
+from utils.llm_response_normalizer import normalize_presentation_state_response
 from utils.template_registry import get_layout_by_group
 
 
@@ -82,6 +83,7 @@ async def design_agent_run(
             response_format=schema,
             strict=True,
         )
+        response = normalize_presentation_state_response(response)
         return PresentationState.model_validate(response)
     except Exception as e:
         raise handle_llm_client_exceptions(e)

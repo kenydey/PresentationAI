@@ -50,8 +50,9 @@ def fonts_page():
                 ui.label("支持 TTF、OTF、WOFF、WOFF2 格式").classes("text-xs text-gray-400 mb-2")
 
                 async def handle_upload(e):
+                    f = getattr(e, "file", e)
                     fd = aiohttp.FormData()
-                    fd.add_field("font_file", e.content.read(), filename=e.name, content_type="application/octet-stream")
+                    fd.add_field("font_file", f.read(), filename=getattr(f, "name", "font"), content_type="application/octet-stream")
                     status, data = await api_post_form("/api/v1/ppt/fonts/upload", fd)
                     if status == 200:
                         log.push(f"上传成功: {data}")
@@ -71,8 +72,9 @@ def fonts_page():
                 pptx_result = ui.label().classes("text-sm text-gray-600")
                 async def handle_pptx_analyze(e):
                     pptx_result.set_text("分析中…")
+                    f = getattr(e, "file", e)
                     fd = aiohttp.FormData()
-                    fd.add_field("pptx_file", e.content.read(), filename=e.name, content_type="application/vnd.openxmlformats-officedocument.presentationml.presentation")
+                    fd.add_field("pptx_file", f.read(), filename=getattr(f, "name", "file.pptx"), content_type="application/vnd.openxmlformats-officedocument.presentationml.presentation")
                     status, data = await api_post_form("/api/v1/ppt/pptx-fonts/process", fd)
                     if status == 200 and isinstance(data, dict) and data.get("success"):
                         fonts_info = data.get("fonts", {})

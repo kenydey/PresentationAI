@@ -71,22 +71,23 @@ def create_page():
                 file_list_container = ui.column().classes("w-full gap-1")
 
                 async def handle_upload(e):
+                    # NiceGUI 新版本用 e.file（无 e.content）
+                    f = e.file if hasattr(e, "file") else getattr(e, "content", e)
+                    file_bytes = f.read() if hasattr(f, "read") else bytes()
+                    name = getattr(f, "name", getattr(e, "name", "file"))
+                    ct = getattr(f, "content_type", None) or getattr(e, "type", None) or "application/octet-stream"
                     fd = aiohttp.FormData()
-                    fd.add_field(
-                        "files", e.content.read(),
-                        filename=e.name,
-                        content_type=e.type or "application/octet-stream",
-                    )
-                    log.push(f"正在上传: {e.name} …")
+                    fd.add_field("files", file_bytes, filename=name, content_type=ct)
+                    log.push(f"正在上传: {name} …")
                     status, data = await api_post_form("/api/v1/ppt/files/upload", fd)
                     if status == 200 and isinstance(data, list):
                         state["file_paths"].extend(data)
-                        log.push(f"✓ 已上传: {e.name} → {data}")
-                        ui.notify(f'{e.name} 上传成功', type='positive')
+                        log.push(f"✓ 已上传: {name} → {data}")
+                        ui.notify(f'{name} 上传成功', type='positive')
                         _refresh_file_list()
                     else:
                         detail = data.get("detail", data) if isinstance(data, dict) else data
-                        log.push(f"✗ 上传失败 ({e.name}): {detail}")
+                        log.push(f"✗ 上传失败 ({name}): {detail}")
                         ui.notify(f'上传失败: {detail}', type='negative')
 
                 ui.upload(

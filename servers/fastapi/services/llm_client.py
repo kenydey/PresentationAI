@@ -138,14 +138,33 @@ class LLMClient:
         )
 
     def _get_custom_client(self):
-        if not get_custom_llm_url_env():
+        base_url = get_custom_llm_url_env()
+        api_key = get_custom_llm_api_key_env()
+
+        # 环境变量未设置时从 userConfig 读取（确保启动/请求时配置生效）
+        if not base_url or not api_key:
+            try:
+                from utils.user_config import get_user_config
+                cfg = get_user_config()
+                active_key = cfg.active_openai_compatible
+                profiles = cfg.openai_compatible_configs or {}
+                profile = profiles.get(active_key) if active_key else None
+                if not profile and profiles:
+                    profile = next(iter(profiles.values()))
+                if profile:
+                    base_url = base_url or profile.base_url
+                    api_key = api_key or profile.api_key
+            except Exception:
+                pass
+
+        if not base_url:
             raise HTTPException(
                 status_code=400,
-                detail="Custom LLM URL is not set",
+                detail="Custom LLM URL is not set. Configure in Settings (系统设置) or run scripts/configure_deepseek.py",
             )
         return AsyncOpenAI(
-            base_url=get_custom_llm_url_env(),
-            api_key=get_custom_llm_api_key_env() or "null",
+            base_url=base_url,
+            api_key=api_key or "null",
         )
 
     # ? Prompts

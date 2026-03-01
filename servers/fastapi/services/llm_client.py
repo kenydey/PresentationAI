@@ -69,11 +69,15 @@ class LLMClient:
         self._client = self._get_client()
         self.tool_calls_handler = LLMToolCallsHandler(self)
 
-    # ? Use tool calls
+    # ? Use tool calls (DeepSeek 等 custom 提供商不支持 response_format，需用 tool_calls)
     def use_tool_calls_for_structured_output(self) -> bool:
         if self.llm_provider != LLMProvider.CUSTOM:
             return False
-        return parse_bool_or_none(get_tool_calls_env()) or False
+        val = parse_bool_or_none(get_tool_calls_env())
+        if val is not None:
+            return val
+        # 未显式配置时默认 True，兼容 DeepSeek 等不支持 response_format 的 API
+        return True
 
     # ? Web Grounding
     def enable_web_grounding(self) -> bool:
@@ -540,8 +544,9 @@ class LLMClient:
 
         if tool_calls:
             for tool_call in tool_calls:
-                if tool_call.function.name == "ResponseSchema":
-                    content = tool_call.function.arguments
+                args = tool_call.function.arguments if hasattr(tool_call.function, "arguments") else ""
+                if tool_call.function.name == "ResponseSchema" or (args and args.strip().startswith("{")):
+                    content = args
                     has_response_schema = True
                     break
 

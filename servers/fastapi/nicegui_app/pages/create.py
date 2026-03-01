@@ -71,9 +71,12 @@ def create_page():
                 file_list_container = ui.column().classes("w-full gap-1")
 
                 async def handle_upload(e):
-                    # NiceGUI 新版本用 e.file（无 e.content）
                     f = e.file if hasattr(e, "file") else getattr(e, "content", e)
-                    file_bytes = f.read() if hasattr(f, "read") else bytes()
+                    if hasattr(f, "read"):
+                        r = f.read()
+                        file_bytes = (await r) if asyncio.iscoroutine(r) else r
+                    else:
+                        file_bytes = bytes()
                     name = getattr(f, "name", getattr(e, "name", "file"))
                     ct = getattr(f, "content_type", None) or getattr(e, "type", None) or "application/octet-stream"
                     fd = aiohttp.FormData()

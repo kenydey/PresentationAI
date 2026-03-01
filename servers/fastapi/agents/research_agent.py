@@ -1,5 +1,6 @@
 """RESEARCH_AGENT — 从输入提取结构化 JSON 大纲。"""
 
+import asyncio
 from datetime import datetime
 from typing import List, Optional
 
@@ -88,7 +89,7 @@ async def research_agent_run(
         include_title_slide,
     )
     last_error = None
-    for attempt in range(2):
+    for attempt in range(3):
         try:
             response = await client.generate_structured(
                 model=model,
@@ -101,7 +102,8 @@ async def research_agent_run(
             return PresentationState.model_validate(response)
         except Exception as e:
             last_error = e
-            if attempt == 0 and "did not return any content" in str(e):
+            if attempt < 2 and ("did not return any content" in str(e) or "validation error" in str(e).lower()):
+                await asyncio.sleep(1.0 * (attempt + 1))
                 continue
             raise handle_llm_client_exceptions(e)
     raise handle_llm_client_exceptions(last_error)

@@ -96,9 +96,12 @@ def images_page():
                 ui.label("上传图片").classes("font-semibold mb-2")
 
                 async def handle_upload(e):
+                    import asyncio
                     f = getattr(e, "file", e)
+                    r = f.read() if hasattr(f, "read") else bytes()
+                    data = await r if asyncio.iscoroutine(r) else r
                     fd = aiohttp.FormData()
-                    fd.add_field("file", f.read(), filename=getattr(f, "name", "image"), content_type=getattr(f, "content_type", None) or "image/png")
+                    fd.add_field("file", data if isinstance(data, bytes) else bytes(), filename=getattr(f, "name", "image"), content_type=getattr(f, "content_type", None) or "image/png")
                     status, data = await api_post_form("/api/v1/ppt/images/upload", fd)
                     if status == 200:
                         log.push(f"上传成功: {data}")

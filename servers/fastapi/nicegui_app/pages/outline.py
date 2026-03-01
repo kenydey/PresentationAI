@@ -375,9 +375,9 @@ def outline_page():
             prepare_log.push(f"  编辑: {edit_path}")
         prepare_status.set_text("导出完成")
 
-        if path:
-            base = get_base_url()
-            url = path if path.startswith("http") else base + ("/" if not path.startswith("/") else "") + path
-            ui.run_javascript(f'window.open("{url}", "_blank")')
+        if path and state.get("pid"):
+            fmt = export_select.value or "pptx"
+            download_url = f"{get_base_url()}/api/v1/ppt/presentation/{state['pid']}/export/download?format={fmt}"
+            ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
     export_btn.on_click(do_export)

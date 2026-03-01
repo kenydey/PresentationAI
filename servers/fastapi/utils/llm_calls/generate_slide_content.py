@@ -1,5 +1,7 @@
+import json
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
+
 from models.llm_message import LLMSystemMessage, LLMUserMessage
 from models.presentation_layout import SlideLayoutModel
 from models.presentation_outline_model import SlideOutlineModel
@@ -7,6 +9,38 @@ from services.llm_client import LLMClient
 from utils.llm_client_error_handler import handle_llm_client_exceptions
 from utils.llm_provider import get_model_for_task
 from utils.schema_utils import add_field_in_schema, remove_fields_from_schema
+
+
+def _parse_table_chart_from_outline(content: str) -> Dict[str, Any]:
+    """从 outline content 解析 TABLE_DATA 和 CHART_DATA，供合并到 slide content。"""
+    result: Dict[str, Any] = {}
+
+    def _extract_json_after(prefix: str) -> Optional[Dict]:
+        idx = content.find(prefix)
+        if idx < 0:
+            return None
+        start = idx + len(prefix)
+        s = content[start:].lstrip()
+        if not s.startswith("{"):
+            return None
+        depth, i = 0, 0
+        for i, c in enumerate(s):
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(s[: i + 1])
+                    except (json.JSONDecodeError, ValueError):
+                        return None
+        return None
+
+    for prefix, key in [("TABLE_DATA:", "table"), ("CHART_DATA:", "chart")]:
+        obj = _extract_json_after(prefix)
+        if obj:
+            result[key] = obj
+    return result
 
 
 def get_system_prompt(
@@ -139,6 +173,12 @@ async def get_slide_content_from_type_and_outline(
             response_format=response_schema,
             strict=False,
         )
+        parsed = _parse_table_chart_from_outline(outline.content)
+        if parsed:
+            if isinstance(response, dict):
+                response = {**response, **parsed}
+            else:
+                response = {**(response or {}), **parsed}
         return response
 
     except Exception as e:

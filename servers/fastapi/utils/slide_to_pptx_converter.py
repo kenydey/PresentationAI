@@ -14,11 +14,14 @@ Layout strategy: auto-position elements based on type detection.
 from typing import List, Optional
 from pptx.enum.text import PP_ALIGN
 from models.pptx_models import (
+    PptxChartBoxModel,
+    PptxChartSeriesModel,
     PptxPresentationModel,
     PptxSlideModel,
     PptxTextBoxModel,
     PptxPictureBoxModel,
     PptxAutoShapeBoxModel,
+    PptxTableBoxModel,
     PptxPositionModel,
     PptxParagraphModel,
     PptxTextRunModel,
@@ -77,11 +80,11 @@ def _multi_para(x, y, w, h, lines, size=14, color="555555", bullet_prefix="• "
     )
 
 
-def _img(x, y, w, h, url):
+def _img(x, y, w, h, url, remove_background: bool = False):
     is_net = url.startswith("http://") or url.startswith("https://")
     return PptxPictureBoxModel(
         position=PptxPositionModel(x=x, y=y, width=w, height=h),
-        picture=PptxPictureModel(path=url, is_network=is_net),
+        picture=PptxPictureModel(path=url, is_network=is_net, remove_background=remove_background),
     )
 
 
@@ -140,7 +143,8 @@ def _convert(content: dict, idx: int) -> list:
             url = _extract_image_url(val)
             if url:
                 img_w, img_h = 400, 280
-                shapes.append(_img(W - img_w - PAD, 160, img_w, img_h, url))
+                remove_bg = key in ("backgroundImage",) or low == "backgroundimage"
+                shapes.append(_img(W - img_w - PAD, 160, img_w, img_h, url, remove_background=remove_bg))
                 has_image = True
             continue
 
@@ -151,7 +155,7 @@ def _convert(content: dict, idx: int) -> list:
                 for i, img in enumerate(val[:4]):
                     url = _extract_image_url(img)
                     if url:
-                        shapes.append(_img(PAD + i * (per_w + 20), y_cursor, per_w, 200, url))
+                        shapes.append(_img(PAD + i * (per_w + 20), y_cursor, per_w, 200, url, remove_background=True))
                 y_cursor += 220
             continue
 
@@ -211,43 +215,87 @@ def _convert(content: dict, idx: int) -> list:
                 y_cursor += 160
             continue
 
-        # ── Table ──
+        # ── Table（原生可编辑表格）──
         if low in _TABLE_KEYS or key in _TABLE_KEYS:
-            if isinstance(val, list) and val:
-                shapes.append(_multi_para(PAD, y_cursor, content_w, min(300, len(val) * 28 + 10), val, size=12, color="555555", bullet_prefix=""))
-                y_cursor += min(300, len(val) * 28 + 20)
-            elif isinstance(val, dict):
+            if isinstance(val, dict):
                 headers = val.get("headers", val.get("columns", []))
                 rows = val.get("rows", val.get("data", []))
-                lines = []
-                if headers:
-                    lines.append(" | ".join(str(h) for h in headers))
-                for row in rows[:10]:
-                    if isinstance(row, list):
-                        lines.append(" | ".join(str(c) for c in row))
-                    elif isinstance(row, dict):
-                        lines.append(" | ".join(str(v) for v in row.values()))
-                if lines:
-                    shapes.append(_multi_para(PAD, y_cursor, content_w, min(300, len(lines) * 26), lines, size=12, color="555555", bullet_prefix=""))
-                    y_cursor += min(300, len(lines) * 26 + 10)
+                if headers or rows:
+                    parsed_rows = []
+                    for row in rows[:20]:
+                        if isinstance(row, list):
+                            parsed_rows.append([str(c) for c in row])
+                        elif isinstance(row, dict):
+                            parsed_rows.append([str(v) for v in row.values()])
+                    header_list = [str(h) for h in headers] if headers else (
+                        [str(i) for i in range(len(parsed_rows[0]))] if parsed_rows else []
+                    )
+                    table_h = min(400, max(120, (1 + len(parsed_rows)) * 28))
+                    shapes.append(PptxTableBoxModel(
+                        position=PptxPositionModel(x=PAD, y=y_cursor, width=content_w, height=table_h),
+                        headers=header_list,
+                        rows=parsed_rows,
+                    ))
+                    y_cursor += table_h + 15
+            elif isinstance(val, list) and val:
+                shapes.append(_multi_para(PAD, y_cursor, content_w, min(300, len(val) * 28 + 10), val, size=12, color="555555", bullet_prefix=""))
+                y_cursor += min(300, len(val) * 28 + 20)
             continue
 
-        # ── Chart ──
+        # ── Chart（原生可编辑图表）──
         if low in _CHART_KEYS or key in _CHART_KEYS:
             if isinstance(val, dict):
-                chart_type = val.get("type", "bar")
-                chart_title = val.get("title", "Chart")
-                shapes.append(_txt(PAD, y_cursor, content_w, 30, f"[{chart_type.upper()} CHART: {chart_title}]", size=14, color="AAAAAA"))
-                data = val.get("data", val.get("datasets", []))
-                if isinstance(data, list):
-                    for d in data[:5]:
+                chart_type_raw = str(val.get("type", "bar")).lower()
+                chart_type = "bar" if chart_type_raw in ("bar", "column") else "line" if chart_type_raw == "line" else "pie" if chart_type_raw == "pie" else "bar"
+                categories = list(val.get("categories", val.get("labels", [])))
+                series_raw = val.get("series", val.get("datasets", val.get("data", [])))
+                series_list = []
+                if isinstance(series_raw, list):
+                    for s in series_raw[:5]:
+                        if isinstance(s, dict):
+                            name = str(s.get("name", "") or s.get("label", "") or "")
+                            data = s.get("data", s.get("values", []))
+                            if isinstance(data, list):
+                                num_data = []
+                                for x in data:
+                                    try:
+                                        num_data.append(float(x) if isinstance(x, (int, float)) else float(str(x).replace(",", "")))
+                                    except (ValueError, TypeError):
+                                        pass
+                                series_list.append(PptxChartSeriesModel(name=name, data=num_data))
+                if isinstance(series_raw, list) and not series_list:
+                    pie_labels, pie_values = [], []
+                    for d in series_raw[:10]:
                         if isinstance(d, dict):
-                            label = str(d.get("label", "") or d.get("name", ""))
-                            value = str(d.get("value", "") or d.get("y", ""))
-                            if label or value:
-                                shapes.append(_txt(PAD + 20, y_cursor + 35, content_w - 40, 22, f"{label}: {value}", size=12, color="666666"))
-                                y_cursor += 24
-                y_cursor += 50
+                            lbl = d.get("label", d.get("name", d.get("category", "")))
+                            v = d.get("value", d.get("y", d.get("data", 0)))
+                            try:
+                                if lbl and v is not None:
+                                    pie_labels.append(str(lbl))
+                                    pie_values.append(float(v))
+                            except (ValueError, TypeError):
+                                pass
+                    if pie_labels and pie_values:
+                        categories = pie_labels
+                        series_list = [PptxChartSeriesModel(name="", data=pie_values)]
+                if not categories and series_list:
+                    categories = [str(i) for i in range(max(len(s.data) for s in series_list) or 1)]
+                if not series_list and categories:
+                    series_list = [PptxChartSeriesModel(name="", data=[0.0] * len(categories))]
+                if categories and series_list:
+                    chart_h = 280
+                    shapes.append(PptxChartBoxModel(
+                        position=PptxPositionModel(x=PAD, y=y_cursor, width=content_w, height=chart_h),
+                        chart_type=chart_type,
+                        title=val.get("title"),
+                        categories=categories,
+                        series=series_list,
+                    ))
+                    y_cursor += chart_h + 15
+                else:
+                    chart_title = val.get("title", "Chart")
+                    shapes.append(_txt(PAD, y_cursor, content_w, 30, f"[{chart_type.upper()} CHART: {chart_title}]", size=14, color="AAAAAA"))
+                    y_cursor += 50
             continue
 
         # ── Fallback: unknown string field ──

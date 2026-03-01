@@ -1,3 +1,4 @@
+import io
 import os
 from typing import List, Optional
 from lxml import etree
@@ -15,12 +16,17 @@ from PIL import Image
 from pptx.oxml.xmlchemy import OxmlElement
 
 from pptx.util import Pt
+from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.enum.chart import XL_CHART_TYPE
+from pptx.chart.data import ChartData
 from pptx.dml.color import RGBColor
 
 from models.pptx_models import (
     PptxAutoShapeBoxModel,
     PptxBoxShapeEnum,
+    PptxChartBoxModel,
     PptxConnectorModel,
+    PptxObjectFitEnum,
     PptxFillModel,
     PptxFontModel,
     PptxParagraphModel,
@@ -31,6 +37,7 @@ from models.pptx_models import (
     PptxSlideModel,
     PptxSpacingModel,
     PptxStrokeModel,
+    PptxTableBoxModel,
     PptxTextBoxModel,
     PptxTextRunModel,
 )
@@ -43,6 +50,7 @@ from utils.image_utils import (
     round_image_corners,
     set_image_opacity,
 )
+from services.image_service import resize_and_crop, remove_background
 import uuid
 
 BLANK_SLIDE_LAYOUT = 6
@@ -149,20 +157,68 @@ class PptxPresentationCreator:
         if slide_model.note:
             slide.notes_slide.notes_text_frame.text = slide_model.note
 
-        for shape_model in slide_model.shapes:
+        picture_shapes = [s for s in slide_model.shapes if isinstance(s, PptxPictureBoxModel)]
+        other_shapes = [s for s in slide_model.shapes if not isinstance(s, PptxPictureBoxModel)]
+        for shape_model in picture_shapes:
+            self.add_picture(slide, shape_model)
+        for shape_model in other_shapes:
             model_type = type(shape_model)
-
-            if model_type is PptxPictureBoxModel:
-                self.add_picture(slide, shape_model)
-
-            elif model_type is PptxAutoShapeBoxModel:
+            if model_type is PptxAutoShapeBoxModel:
                 self.add_autoshape(slide, shape_model)
-
             elif model_type is PptxTextBoxModel:
                 self.add_textbox(slide, shape_model)
-
             elif model_type is PptxConnectorModel:
                 self.add_connector(slide, shape_model)
+            elif model_type is PptxTableBoxModel:
+                self.add_table(slide, shape_model)
+            elif model_type is PptxChartBoxModel:
+                self.add_chart(slide, shape_model)
+
+    def add_chart(self, slide: Slide, chart_model: PptxChartBoxModel):
+        """插入原生 PowerPoint 图表（柱状/折线/饼图），导出后可在 PPT 中二次编辑。"""
+        chart_type_map = {
+            "bar": XL_CHART_TYPE.COLUMN_CLUSTERED,
+            "line": XL_CHART_TYPE.LINE,
+            "pie": XL_CHART_TYPE.PIE,
+        }
+        xl_type = chart_type_map.get(chart_model.chart_type, XL_CHART_TYPE.COLUMN_CLUSTERED)
+        categories = chart_model.categories or []
+        series_list = chart_model.series or []
+        if not categories and not series_list:
+            return
+        chart_data = ChartData()
+        chart_data.categories = categories
+        for s in series_list:
+            chart_data.add_series(s.name or "", s.data or [])
+        try:
+            slide.shapes.add_chart(
+                xl_type, *chart_model.position.to_pt_list(), chart_data
+            )
+        except Exception as e:
+            print(f"Could not add chart: {e}")
+
+    def add_table(self, slide: Slide, table_model: PptxTableBoxModel):
+        """插入原生 PowerPoint 表格，导出后可在 PPT 中二次编辑。"""
+        headers = table_model.headers or []
+        rows = table_model.rows or []
+        n_rows = 1 + len(rows)
+        n_cols = max(len(headers), 1)
+        if not headers and rows:
+            n_cols = max(len(r) for r in rows) if rows else 1
+        n_cols = max(n_cols, 1)
+        n_rows = max(n_rows, 1)
+
+        pos = table_model.position
+        shape = slide.shapes.add_table(
+            n_rows, n_cols,
+            Pt(pos.left), Pt(pos.top), Pt(pos.width), Pt(pos.height)
+        )
+        table = shape.table
+        for c, h in enumerate(headers[:n_cols]):
+            table.cell(0, c).text = str(h)
+        for r, row in enumerate(rows):
+            for c, cell_text in enumerate(row[:n_cols]):
+                table.cell(r + 1, c).text = str(cell_text)
 
     def add_connector(self, slide: Slide, connector_model: PptxConnectorModel):
         if connector_model.thickness == 0:
@@ -176,53 +232,64 @@ class PptxPresentationCreator:
 
     def add_picture(self, slide: Slide, picture_model: PptxPictureBoxModel):
         image_path = picture_model.picture.path
-        if (
-            picture_model.clip
-            or picture_model.border_radius
-            or picture_model.invert
-            or picture_model.opacity
-            or picture_model.object_fit
-            or picture_model.shape
-        ):
-            try:
-                image = Image.open(image_path)
-            except Exception:
-                print(f"Could not open image: {image_path}")
-                return
+        pos = picture_model.position
 
-            image = image.convert("RGBA")
-            # ? Applying border radius twice to support both clip and object fit
-            if picture_model.border_radius:
-                image = round_image_corners(image, picture_model.border_radius)
-            if picture_model.object_fit:
-                image = fit_image(
-                    image,
-                    picture_model.position.width,
-                    picture_model.position.height,
-                    picture_model.object_fit,
+        try:
+            with open(image_path, "rb") as f:
+                img_bytes = f.read()
+        except Exception as e:
+            print(f"Could not read image: {image_path} - {e}")
+            return
+
+        if getattr(picture_model.picture, "remove_background", False):
+            try:
+                img_bytes = remove_background(img_bytes).read()
+            except Exception as e:
+                print(f"Background removal failed for {image_path}: {e}")
+
+        try:
+            use_resize_crop = not picture_model.object_fit or (
+                picture_model.object_fit.fit == PptxObjectFitEnum.COVER
+            )
+            if use_resize_crop and pos.width > 0 and pos.height > 0:
+                stream = resize_and_crop(img_bytes, pos.width, pos.height)
+                image = Image.open(stream).convert("RGBA")
+            else:
+                image = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
+                if picture_model.object_fit:
+                    image = fit_image(
+                        image, pos.width, pos.height, picture_model.object_fit
+                    )
+                elif picture_model.clip:
+                    image = clip_image(image, pos.width, pos.height)
+        except Exception as e:
+            print(f"Image preprocessing failed: {image_path} - {e}")
+            try:
+                slide.shapes.add_picture(
+                    image_path, *self.get_margined_position(pos, picture_model.margin).to_pt_list()
                 )
-            elif picture_model.clip:
-                image = clip_image(
-                    image,
-                    picture_model.position.width,
-                    picture_model.position.height,
-                )
-            if picture_model.border_radius:
-                image = round_image_corners(image, picture_model.border_radius)
-            if picture_model.shape == PptxBoxShapeEnum.CIRCLE:
-                image = create_circle_image(image)
-            if picture_model.invert:
-                image = invert_image(image)
-            if picture_model.opacity:
-                image = set_image_opacity(image, picture_model.opacity)
-            image_path = os.path.join(self._temp_dir, f"{uuid.uuid4()}.png")
-            image.save(image_path)
+            except Exception:
+                pass
+            return
+
+        if picture_model.border_radius:
+            image = round_image_corners(image, picture_model.border_radius)
+        if picture_model.shape == PptxBoxShapeEnum.CIRCLE:
+            image = create_circle_image(image)
+        if picture_model.invert:
+            image = invert_image(image)
+        if picture_model.opacity:
+            image = set_image_opacity(image, picture_model.opacity)
+
+        out_stream = io.BytesIO()
+        image.save(out_stream, format="PNG", optimize=True)
+        out_stream.seek(0)
 
         margined_position = self.get_margined_position(
             picture_model.position, picture_model.margin
         )
 
-        slide.shapes.add_picture(image_path, *margined_position.to_pt_list())
+        slide.shapes.add_picture(out_stream, *margined_position.to_pt_list())
 
     def add_autoshape(self, slide: Slide, autoshape_box_model: PptxAutoShapeBoxModel):
         position = autoshape_box_model.position
@@ -234,7 +301,8 @@ class PptxPresentationCreator:
         )
 
         textbox = autoshape.text_frame
-        textbox.word_wrap = autoshape_box_model.text_wrap
+        textbox.word_wrap = True
+        textbox.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
 
         self.apply_fill_to_shape(autoshape, autoshape_box_model.fill)
         self.apply_margin_to_text_box(textbox, autoshape_box_model.margin)
@@ -251,7 +319,8 @@ class PptxPresentationCreator:
         textbox_shape.width += Pt(2)
 
         textbox = textbox_shape.text_frame
-        textbox.word_wrap = textbox_model.text_wrap
+        textbox.word_wrap = True
+        textbox.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
 
         self.apply_fill_to_shape(textbox_shape, textbox_model.fill)
         self.apply_margin_to_text_box(textbox, textbox_model.margin)

@@ -66,7 +66,7 @@ def create_page():
                 # ── 文件上传 ──
                 ui.separator().classes("my-2")
                 ui.label("附件文档 (files)").classes("font-semibold mb-1")
-                ui.label("支持 PDF、DOCX、DOC、TXT、PPTX，单文件最大 100MB").classes("text-xs text-gray-400 mb-1")
+                ui.label("支持 PDF、DOCX、DOC、TXT、PPTX、Markdown(.md)，单文件最大 100MB").classes("text-xs text-gray-400 mb-1")
 
                 file_list_container = ui.column().classes("w-full gap-1")
 
@@ -91,7 +91,7 @@ def create_page():
 
                 ui.upload(
                     on_upload=handle_upload, multiple=True, auto_upload=True
-                ).props("accept='.pdf,.docx,.doc,.txt,.pptx' flat bordered").classes("w-full")
+                ).props("accept='.pdf,.docx,.doc,.txt,.pptx,.md' flat bordered").classes("w-full")
 
                 def _refresh_file_list():
                     file_list_container.clear()
@@ -200,10 +200,11 @@ def create_page():
                 log.push(f"  编辑链接: {edit_path}")
             result_label.set_text("演示文稿已生成!")
             ui.notify('演示文稿生成成功', type='positive')
-            if path:
+            if path and pid:
+                fmt = export_as.value or "pptx"
                 base = get_base_url()
-                url = path if path.startswith("http") else base + ("/" if not path.startswith("/") else "") + path
-                ui.run_javascript(f'window.open("{url}", "_blank")')
+                download_url = f"{base}/api/v1/ppt/presentation/{pid}/export/download?format={fmt}"
+                ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
         # ────────────── 同步生成 ──────────────
         async def do_generate():

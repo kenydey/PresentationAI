@@ -20,12 +20,17 @@ def dashboard_page():
         rows = []
         for item in data:
             content_raw = item.get("content") or ""
+            slides = item.get("slides") or []
+            has_slides = len(slides) > 0
+            status = "已生成" if has_slides else "仅有大纲"
             rows.append({
                 "id": item.get("id"),
                 "title": item.get("title") or content_raw[:30] or str(item.get("id", ""))[:8],
                 "content_preview": content_raw[:60] + ("…" if len(content_raw) > 60 else ""),
                 "language": item.get("language", ""),
                 "n_slides": item.get("n_slides", ""),
+                "status": status,
+                "has_slides": has_slides,
                 "created_at": (item.get("created_at") or "").replace("T", " ").split(".")[0],
             })
         state["all_rows"] = rows
@@ -35,6 +40,12 @@ def dashboard_page():
     def _open_viewer():
         if state["selected"]:
             ui.navigate.to(f'/viewer?id={state["selected"]["id"]}')
+        else:
+            ui.notify("请先选择一条演示文稿", type="warning")
+
+    def _open_outline():
+        if state["selected"]:
+            ui.navigate.to(f'/outline?id={state["selected"]["id"]}')
         else:
             ui.notify("请先选择一条演示文稿", type="warning")
 
@@ -98,6 +109,7 @@ def dashboard_page():
         table = ui.table(
             columns=[
                 {"name": "title", "label": "标题", "field": "title", "align": "left", "sortable": True},
+                {"name": "status", "label": "状态", "field": "status", "align": "left"},
                 {"name": "content_preview", "label": "内容摘要", "field": "content_preview", "align": "left"},
                 {"name": "language", "label": "语言", "field": "language", "sortable": True},
                 {"name": "n_slides", "label": "页数", "field": "n_slides", "sortable": True},
@@ -112,6 +124,9 @@ def dashboard_page():
 
         with ui.row().classes("gap-2"):
             ui.button("查看/编辑", icon="visibility", on_click=_open_viewer).props("outline")
+            ui.button("大纲编辑", icon="edit_note", on_click=_open_outline).props("outline").tooltip(
+                "编辑大纲、从大纲生成 PPT"
+            )
             ui.button("导出 PPTX", icon="download", on_click=_export_pptx).props("outline")
             ui.button("高质量 PPTX", icon="auto_awesome", on_click=_export_pptx_hq).props(
                 "outline color=primary"

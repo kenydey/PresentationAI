@@ -23,16 +23,16 @@ TEMPLATE_OPTIONS = {"general": "通用", "modern": "现代", "standard": "标准
 
 
 @ui.page("/outline")
-def outline_page():
+def outline_page(id: str = ""):
     page_layout("大纲编辑")
-    state = {"pid": None, "editors": [], "presentation_data": None}
+    state = {"pid": None, "editors": [], "presentation_data": None, "has_slides": False}
 
     with ui.column().classes("w-full p-6 gap-4 max-w-6xl mx-auto"):
         ui.label("演示大纲生成与编辑").classes("text-2xl font-bold")
 
         # ── 步骤提示 ──
         with ui.row().classes("gap-2 items-center text-sm text-gray-500"):
-            for i, step in enumerate(["① 创建演示", "② 流式生成大纲", "③ 编辑每页大纲", "④ 保存并导出"], 1):
+            for i, step in enumerate(["① 生成大纲", "② 保存大纲", "③ 从大纲生成 PPT", "④ 导出"], 1):
                 ui.label(step).classes("bg-gray-100 rounded px-2 py-1")
                 if i < 4:
                     ui.icon("arrow_forward").classes("text-gray-300")
@@ -92,8 +92,9 @@ def outline_page():
         with ui.row().classes("gap-3 items-center flex-wrap"):
             stream_btn = ui.button("① 生成大纲", icon="bolt").props("color=primary")
             save_btn = ui.button("② 保存大纲", icon="save").props("outline")
+            generate_btn = ui.button("③ 从大纲生成 PPT", icon="slideshow").props("outline")
             export_select = ui.select({"pptx": "PPTX", "pdf": "PDF"}, value="pptx").classes("w-28")
-            export_btn = ui.button("③ 导出", icon="download").props("color=positive")
+            export_btn = ui.button("④ 导出", icon="download").props("color=positive")
             with ui.row().classes("gap-2 items-center ml-4"):
                 ui.label("演示 ID:").classes("text-xs text-gray-400")
                 pid_label = ui.label("—").classes("text-xs font-mono text-gray-600")
@@ -106,6 +107,7 @@ def outline_page():
         state["pid"] = None
         state["editors"] = []
         state["presentation_data"] = None
+        state["has_slides"] = False
         pid_label.set_text("—")
 
         content_val = (content_input.value or "").strip()
@@ -338,14 +340,116 @@ def outline_page():
 
     save_btn.on_click(do_save_outlines)
 
-    # ───────────── 导出 (步骤 3) ─────────────
+    # ───────────── 从大纲生成 PPT (步骤 3) ─────────────
+    async def do_generate_ppt():
+        prepare_log.clear()
+        prepare_status.set_text("")
+
+        if not state["pid"]:
+            prepare_log.push("✗ 请先生成大纲并保存（步骤 1、2）")
+            ui.notify("请先生成并保存大纲", type="warning")
+            return
+
+        generate_btn.props("disable loading")
+        prepare_status.set_text("正在从大纲生成幻灯片…")
+        prepare_log.push(f"▶ GET /presentation/stream/{state['pid']}")
+
+        base_url = get_base_url()
+        stream_url = base_url + f"/api/v1/ppt/presentation/stream/{state['pid']}"
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(stream_url) as resp:
+                    if resp.status != 200:
+                        text = await resp.text()
+                        err = json.loads(text) if text.strip().startswith("{") else {"detail": text[:200]}
+                        detail = err.get("detail", text[:200])
+                        prepare_log.push(f"✗ 连接失败 (HTTP {resp.status}): {detail}")
+                        ui.notify(f'生成失败: {detail}', type='negative')
+                        generate_btn.props(remove="disable loading")
+                        prepare_status.set_text("生成失败")
+                        return
+
+                    buf = ""
+                    slide_count = 0
+                    async for raw_chunk, _ in resp.content.iter_chunks():
+                        if not raw_chunk:
+                            continue
+                        buf += raw_chunk.decode("utf-8", errors="ignore")
+
+                        while "\n\n" in buf:
+                            block, buf = buf.split("\n\n", 1)
+                            lines = [ln for ln in block.splitlines() if ln.strip()]
+                            data_line = next((ln for ln in lines if ln.startswith("data:")), None)
+                            if not data_line or len(data_line) <= 5:
+                                continue
+                            try:
+                                data = json.loads(data_line[5:].strip())
+                            except Exception:
+                                continue
+
+                            evt_type = data.get("type", "")
+
+                            if evt_type == "status":
+                                prepare_log.push(f"  [状态] {data.get('status', '')}")
+                                prepare_status.set_text(data.get("status", ""))
+
+                            elif evt_type == "chunk":
+                                slide_count += 1
+                                if slide_count <= 3 or slide_count % 3 == 0:
+                                    prepare_log.push(f"  [幻灯片 #{slide_count}] 已生成…")
+
+                            elif evt_type == "error":
+                                detail = data.get("detail", "")
+                                prepare_log.push(f"✗ [错误] {detail}")
+                                ui.notify(f'生成出错: {detail}', type='negative')
+                                generate_btn.props(remove="disable loading")
+                                prepare_status.set_text("生成出错")
+                                return
+
+                            elif evt_type == "complete":
+                                pres = data.get("presentation", {})
+                                slides = pres.get("slides", [])
+                                state["has_slides"] = len(slides) > 0
+                                prepare_log.push(f"✓ 已生成 {len(slides)} 页幻灯片")
+                                ui.notify(f'已生成 {len(slides)} 页幻灯片', type='positive')
+                                prepare_status.set_text(f"生成完成 ({len(slides)} 页)")
+                                generate_btn.props(remove="disable loading")
+                                return
+
+        except Exception as e:
+            prepare_log.push(f"✗ 流式异常: {e}")
+            ui.notify('生成异常', type='negative')
+            prepare_status.set_text("生成异常")
+
+        generate_btn.props(remove="disable loading")
+
+    generate_btn.on_click(do_generate_ppt)
+
+    # ───────────── 导出 (步骤 4) ─────────────
     async def do_export():
         prepare_log.clear()
         prepare_status.set_text("")
 
         if not state["pid"]:
             prepare_log.push("✗ 请先创建演示并保存大纲")
+            ui.notify("请先完成步骤 1、2、3", type="warning")
             return
+
+        # 校验是否已生成幻灯片
+        if not state.get("has_slides"):
+            status, pres_data = await api_get(f"/api/v1/ppt/presentation/{state['pid']}")
+            if status == 200 and pres_data:
+                slides = pres_data.get("slides") or []
+                if len(slides) > 0:
+                    state["has_slides"] = True
+                else:
+                    prepare_log.push("✗ 请先从大纲生成 PPT（步骤 3）后再导出")
+                    ui.notify("请先点击「从大纲生成 PPT」", type="warning")
+                    return
+            else:
+                prepare_log.push("✗ 无法获取演示数据，请重试")
+                return
 
         fmt = export_select.value or "pptx"
         export_btn.props("disable loading")
@@ -381,3 +485,37 @@ def outline_page():
             ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
     export_btn.on_click(do_export)
+
+    # 从 URL 加载已有演示（仪表盘「大纲编辑」跳转）
+    async def load_by_id():
+        pid = (id or "").strip()
+        if not pid:
+            return
+        prepare_log.clear()
+        prepare_log.push(f"正在加载演示 {pid}…")
+        status, pres = await api_get(f"/api/v1/ppt/presentation/{pid}")
+        if status != 200 or not pres:
+            prepare_log.push("✗ 加载失败")
+            ui.notify("加载失败", type="negative")
+            return
+        state["pid"] = pid
+        pid_label.set_text(str(pid)[:12] + "…")
+        outlines_obj = pres.get("outlines") or {}
+        outlines = outlines_obj.get("slides") or []
+        slides = pres.get("slides") or []
+        state["has_slides"] = len(slides) > 0
+        if pres.get("title"):
+            title_input.value = pres["title"]
+        if outlines:
+            outline_container.clear()
+            _render_outline_editors(outlines)
+            prepare_log.push(f"✓ 已加载 {len(outlines)} 页大纲")
+            ui.notify(f"已加载演示，{len(outlines)} 页大纲", type="positive")
+        else:
+            outline_container.clear()
+            with outline_container:
+                ui.label("该演示暂无大纲，请点击「生成大纲」重新生成").classes("text-gray-400 italic")
+            prepare_log.push("该演示无大纲")
+        state["presentation_data"] = pres
+
+    ui.timer(0.2, load_by_id, once=True)

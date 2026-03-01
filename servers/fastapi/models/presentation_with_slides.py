@@ -18,3 +18,4 @@ class PresentationWithSlides(BaseModel):
     tone: Optional[str] = None
     verbosity: Optional[str] = None
     slides: List[SlideModel]
+    outlines: Optional[dict] = None  # 大纲，供从仪表盘跳转到大纲页加载

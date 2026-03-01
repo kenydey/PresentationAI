@@ -74,11 +74,12 @@ PRESENTATION_ROUTER = APIRouter(prefix="/presentation", tags=["Presentation"])
 
 @PRESENTATION_ROUTER.get("/all", response_model=List[PresentationWithSlides])
 async def get_all_presentations(sql_session: AsyncSession = Depends(get_async_session)):
+    """返回所有演示（含仅有大纲未生成幻灯片的），LEFT JOIN 使无 slide 的演示也显示。"""
     presentations_with_slides = []
 
     query = (
         select(PresentationModel, SlideModel)
-        .join(
+        .outerjoin(
             SlideModel,
             (SlideModel.presentation == PresentationModel.id) & (SlideModel.index == 0),
         )
@@ -90,7 +91,7 @@ async def get_all_presentations(sql_session: AsyncSession = Depends(get_async_se
     presentations_with_slides = [
         PresentationWithSlides(
             **presentation.model_dump(),
-            slides=[first_slide],
+            slides=[first_slide] if first_slide is not None else [],
         )
         for presentation, first_slide in rows
     ]

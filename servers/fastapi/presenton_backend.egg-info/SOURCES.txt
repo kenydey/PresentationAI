@@ -41,6 +41,8 @@ api/v1/ppt/background_tasks.py
 api/v1/ppt/router.py
 api/v1/ppt/endpoints/__init__.py
 api/v1/ppt/endpoints/anthropic.py
+api/v1/ppt/endpoints/auth.py
+api/v1/ppt/endpoints/config.py
 api/v1/ppt/endpoints/files.py
 api/v1/ppt/endpoints/fonts.py
 api/v1/ppt/endpoints/google.py
@@ -56,6 +58,8 @@ api/v1/ppt/endpoints/presentation.py
 api/v1/ppt/endpoints/prompts.py
 api/v1/ppt/endpoints/slide.py
 api/v1/ppt/endpoints/slide_to_html.py
+api/v1/ppt/endpoints/theme.py
+api/v1/ppt/endpoints/vibe.py
 api/v1/webhook/router.py
 constants/__init__.py
 constants/documents.py
@@ -87,6 +91,7 @@ models/presentation_and_path.py
 models/presentation_from_template.py
 models/presentation_layout.py
 models/presentation_outline_model.py
+models/presentation_state.py
 models/presentation_structure_model.py
 models/presentation_with_slides.py
 models/slide_layout_index.py
@@ -100,6 +105,8 @@ models/sql/presentation.py
 models/sql/presentation_layout_code.py
 models/sql/slide.py
 models/sql/template.py
+models/sql/theme.py
+models/sql/user.py
 models/sql/webhook_subscription.py
 orchestrator/__init__.py
 orchestrator/design_agent.py
@@ -119,10 +126,12 @@ services/concurrent_service.py
 services/database.py
 services/docling_service.py
 services/documents_loader.py
+services/dom_sampling_export_service.py
 services/graphviz_renderer.py
 services/html_to_text_runs_service.py
 services/icon_finder_service.py
 services/image_generation_service.py
+services/image_service.py
 services/llm_client.py
 services/llm_tool_calls_handler.py
 services/pptx_presentation_creator.py
@@ -132,6 +141,7 @@ services/webhook_service.py
 tests/test_gemini_schema_support.py
 tests/test_get_icon.py
 tests/test_image_generation.py
+tests/test_image_service.py
 tests/test_mcp_server.py
 tests/test_openai_schema_support.py
 tests/test_pptx_creator.py
@@ -144,6 +154,7 @@ tests/test_user_config_mapping.py
 utils/__init__.py
 utils/asset_directory_utils.py
 utils/async_iterator.py
+utils/auth.py
 utils/available_models.py
 utils/datetime_utils.py
 utils/db_utils.py
@@ -167,6 +178,9 @@ utils/ppt_utils.py
 utils/process_slides.py
 utils/schema_utils.py
 utils/set_env.py
+utils/slide_to_pptx_converter.py
+utils/state_mapper.py
+utils/template_registry.py
 utils/text_autofit.py
 utils/user_config.py
 utils/validators.py

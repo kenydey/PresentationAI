@@ -426,6 +426,9 @@ async def export_presentation_as_pptx_or_pdf(
     export_as: Annotated[
         Literal["pptx", "pdf"], Body(description="Format to export the presentation as")
     ] = "pptx",
+    high_quality: Annotated[
+        bool, Body(description="Use DOM sampling for higher fidelity (PPTX only)")
+    ] = False,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     presentation = await sql_session.get(PresentationModel, id)
@@ -438,6 +441,7 @@ async def export_presentation_as_pptx_or_pdf(
         presentation.title or str(uuid.uuid4()),
         export_as,
         sql_session=sql_session,
+        use_dom_sampling=high_quality and export_as == "pptx",
     )
 
     return PresentationPathAndEditPath(
@@ -450,6 +454,9 @@ async def export_presentation_as_pptx_or_pdf(
 async def download_export(
     id: Annotated[uuid.UUID, Path(description="Presentation ID")],
     format: Annotated[Literal["pptx", "pdf"], Query(alias="format")] = "pptx",
+    high_quality: Annotated[
+        bool, Query(description="Use DOM sampling for higher fidelity (PPTX only)")
+    ] = False,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """将导出的 PPTX/PDF 以文件流形式返回，供用户安全下载。"""
@@ -457,16 +464,18 @@ async def download_export(
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
 
+    use_dom = high_quality and format == "pptx"
     exports_dir = get_exports_directory()
     safe_name = sanitize_filename(presentation.title or str(id)) + (".pptx" if format == "pptx" else ".pdf")
     path = os.path.join(exports_dir, safe_name)
 
-    if not os.path.isfile(path):
+    if not os.path.isfile(path) or use_dom:
         result = await export_presentation(
             id,
             presentation.title or str(uuid.uuid4()),
             format,
             sql_session=sql_session,
+            use_dom_sampling=use_dom,
         )
         path = result.path
     if not path or not os.path.isfile(path):

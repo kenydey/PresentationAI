@@ -24,5 +24,10 @@ Requires-Dist: redis>=6.2.0
 Requires-Dist: sqlmodel>=0.0.24
 Requires-Dist: nicegui>=2.0.0
 Requires-Dist: numpy>=1.24.0
+Requires-Dist: bcrypt>=4.3.0
+Requires-Dist: pyjwt>=2.11.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: rembg>=2.0.0
+Requires-Dist: playwright>=1.49.0
 Provides-Extra: graphviz
 Requires-Dist: pygraphviz>=1.11; extra == "graphviz"

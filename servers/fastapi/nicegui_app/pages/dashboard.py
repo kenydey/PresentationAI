@@ -39,18 +39,25 @@ def dashboard_page():
             ui.notify("请先选择一条演示文稿", type="warning")
 
     async def _export_pptx():
-        await _export("pptx")
+        await _export("pptx", high_quality=False)
+
+    async def _export_pptx_hq():
+        await _export("pptx", high_quality=True)
 
     async def _export_pdf():
-        await _export("pdf")
+        await _export("pdf", high_quality=False)
 
-    async def _export(fmt: str):
+    async def _export(fmt: str, high_quality: bool = False):
         if not state["selected"]:
             ui.notify("请先选择一条演示文稿", type="warning")
             return
         pid = state["selected"]["id"]
-        log.push(f"正在导出 {pid} 为 {fmt}…")
-        status, data = await api_post("/api/v1/ppt/presentation/export", {"id": pid, "export_as": fmt})
+        hq_label = "（高质量 DOM 采样）" if high_quality and fmt == "pptx" else ""
+        log.push(f"正在导出 {pid} 为 {fmt}{hq_label}…")
+        payload = {"id": pid, "export_as": fmt}
+        if fmt == "pptx":
+            payload["high_quality"] = high_quality
+        status, data = await api_post("/api/v1/ppt/presentation/export", payload)
         if status != 200:
             log.push(f"导出失败: {data}")
             ui.notify("导出失败", type="negative")
@@ -59,7 +66,10 @@ def dashboard_page():
         log.push(f"导出成功: {path}")
         ui.notify("导出成功", type="positive")
         from nicegui_app.api_client import get_base_url
-        download_url = f"{get_base_url()}/api/v1/ppt/presentation/{pid}/export/download?format={fmt}"
+        qs = f"format={fmt}"
+        if high_quality and fmt == "pptx":
+            qs += "&high_quality=true"
+        download_url = f"{get_base_url()}/api/v1/ppt/presentation/{pid}/export/download?{qs}"
         ui.run_javascript(f'window.open("{download_url}", "_blank")')
 
     async def _delete():
@@ -103,6 +113,9 @@ def dashboard_page():
         with ui.row().classes("gap-2"):
             ui.button("查看/编辑", icon="visibility", on_click=_open_viewer).props("outline")
             ui.button("导出 PPTX", icon="download", on_click=_export_pptx).props("outline")
+            ui.button("高质量 PPTX", icon="auto_awesome", on_click=_export_pptx_hq).props(
+                "outline color=primary"
+            ).tooltip("基于预览页 DOM 采样，所见即所得")
             ui.button("导出 PDF", icon="picture_as_pdf", on_click=_export_pdf).props("outline")
             ui.button("删除", icon="delete", on_click=_delete).props("outline color=negative")
 
